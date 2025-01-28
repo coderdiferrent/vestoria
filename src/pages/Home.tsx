@@ -1,6 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -17,6 +20,8 @@ import {
   HelpCircle,
   ArrowUpRight,
   ArrowDownRight,
+  Mail,
+  MessageSquare,
 } from "lucide-react";
 import {
   AreaChart,
@@ -38,6 +43,19 @@ const data = [
 
 const Home = () => {
   const navigate = useNavigate();
+  const accountBalance = 5000; // Example balance
+
+  const handleWithdrawal = (amount: number) => {
+    if (amount > accountBalance) {
+      toast.error("Saldo insuficiente para saque");
+      return;
+    }
+    if (amount <= 0) {
+      toast.error("Digite um valor válido para saque");
+      return;
+    }
+    toast.success("Solicitação de saque enviada com sucesso!");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -82,101 +100,178 @@ const Home = () => {
         </NavigationMenu>
       </nav>
 
-      {/* Main Content */}
       <main className="container mx-auto p-8">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Vestoria</h1>
           <p className="text-xl text-gray-600">Duplique seus ganhos em 40 dias!</p>
         </div>
 
-        {/* Investment Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Total Investido</h3>
-              <ArrowUpRight className="text-green-500" />
-            </div>
-            <p className="text-3xl font-bold">R$ 5.000,00</p>
-            <p className="text-sm text-gray-500">+15% este mês</p>
-          </Card>
+        <Tabs defaultValue="dashboard" className="w-full">
+          <TabsList className="grid grid-cols-6 gap-4 mb-8">
+            <TabsTrigger value="dashboard" className="flex items-center gap-2">
+              <BarChart className="w-4 h-4" />
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="invest" className="flex items-center gap-2">
+              <ArrowUpRight className="w-4 h-4" />
+              Investir
+            </TabsTrigger>
+            <TabsTrigger value="withdraw" className="flex items-center gap-2">
+              <Wallet className="w-4 h-4" />
+              Saque
+            </TabsTrigger>
+            <TabsTrigger value="referral" className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Indicação
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings className="w-4 h-4" />
+              Configurações
+            </TabsTrigger>
+            <TabsTrigger value="support" className="flex items-center gap-2">
+              <HelpCircle className="w-4 h-4" />
+              Suporte
+            </TabsTrigger>
+          </TabsList>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Rendimento Atual</h3>
-              <ArrowUpRight className="text-green-500" />
-            </div>
-            <p className="text-3xl font-bold">R$ 750,00</p>
-            <p className="text-sm text-gray-500">30 dias restantes</p>
-          </Card>
+          <TabsContent value="dashboard">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Total Investido</h3>
+                  <ArrowUpRight className="text-green-500" />
+                </div>
+                <p className="text-3xl font-bold">R$ 5.000,00</p>
+                <p className="text-sm text-gray-500">+15% este mês</p>
+              </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Total de Indicações</h3>
-              <Users className="text-blue-500" />
-            </div>
-            <p className="text-3xl font-bold">12</p>
-            <p className="text-sm text-gray-500">+3 esta semana</p>
-          </Card>
-        </div>
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Rendimento Atual</h3>
+                  <ArrowUpRight className="text-green-500" />
+                </div>
+                <p className="text-3xl font-bold">R$ 750,00</p>
+                <p className="text-sm text-gray-500">30 dias restantes</p>
+              </Card>
 
-        {/* Chart */}
-        <Card className="p-6 mb-8">
-          <h3 className="text-lg font-semibold mb-4">Evolução do Investimento</h3>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Area
-                  type="monotone"
-                  dataKey="amount"
-                  stroke="#4F46E5"
-                  fill="#4F46E5"
-                  fillOpacity={0.2}
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Total de Indicações</h3>
+                  <Users className="text-blue-500" />
+                </div>
+                <p className="text-3xl font-bold">12</p>
+                <p className="text-sm text-gray-500">+3 esta semana</p>
+              </Card>
+            </div>
+            <Card className="p-6 mb-8">
+              <h3 className="text-lg font-semibold mb-4">Evolução do Investimento</h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={data}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Area
+                      type="monotone"
+                      dataKey="amount"
+                      stroke="#4F46E5"
+                      fill="#4F46E5"
+                      fillOpacity={0.2}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="invest">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Fazer Novo Investimento</h3>
+              <div className="space-y-4">
+                <Input type="number" placeholder="Digite o valor do investimento" />
+                <Button className="w-full">Investir Agora</Button>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="withdraw">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Solicitar Saque</h3>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600">
+                  Saldo disponível: R$ {accountBalance.toFixed(2)}
+                </p>
+                <Input
+                  type="number"
+                  placeholder="Digite o valor para saque"
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+                    if (value > accountBalance) {
+                      toast.error("Valor maior que o saldo disponível");
+                    }
+                  }}
                 />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    const input = document.querySelector('input[type="number"]') as HTMLInputElement;
+                    handleWithdrawal(parseFloat(input.value));
+                  }}
+                >
+                  Solicitar Saque
+                </Button>
+              </div>
+            </Card>
+          </TabsContent>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Ações Rápidas</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <Button className="w-full">
-                <Wallet className="mr-2 h-4 w-4" />
-                Investir
-              </Button>
-              <Button variant="outline" className="w-full">
-                <ArrowDownRight className="mr-2 h-4 w-4" />
-                Solicitar Saque
-              </Button>
-              <Button variant="outline" className="w-full">
-                <Settings className="mr-2 h-4 w-4" />
-                Configurações
-              </Button>
-              <Button variant="outline" className="w-full">
-                <HelpCircle className="mr-2 h-4 w-4" />
-                Suporte
-              </Button>
-            </div>
-          </Card>
+          <TabsContent value="referral">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Programa de Indicação</h3>
+              <div className="space-y-4">
+                <Input readOnly value="https://vestoria.com/ref/123456" />
+                <Button className="w-full">Copiar Link de Indicação</Button>
+              </div>
+            </Card>
+          </TabsContent>
 
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Programa de Indicação</h3>
-            <p className="text-gray-600 mb-4">
-              Indique amigos e ganhe bônus sobre os investimentos deles!
-            </p>
-            <Button className="w-full">
-              <Users className="mr-2 h-4 w-4" />
-              Convidar Amigos
-            </Button>
-          </Card>
-        </div>
+          <TabsContent value="settings">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Configurações da Conta</h3>
+              <div className="space-y-4">
+                <Button variant="outline" className="w-full">
+                  Editar Perfil
+                </Button>
+                <Button variant="outline" className="w-full">
+                  Alterar Senha
+                </Button>
+                <Button variant="outline" className="w-full">
+                  Preferências de Notificação
+                </Button>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="support">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Suporte</h3>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  <a href="mailto:suporte@vestoria.com" className="text-primary hover:underline">
+                    suporte@vestoria.com
+                  </a>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  <a href="https://t.me/vestoria" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    Telegram: @vestoria
+                  </a>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </main>
 
       {/* Footer */}
