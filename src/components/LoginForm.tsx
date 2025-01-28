@@ -42,6 +42,10 @@ const LoginForm = () => {
   };
 
   const handleDevAccess = () => {
+    toast({
+      title: "Sucesso",
+      description: "Acesso de desenvolvedor concedido",
+    });
     navigate("/home");
   };
 
