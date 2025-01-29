@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
 
 const RegisterForm = () => {
   const navigate = useNavigate();
@@ -15,8 +13,6 @@ const RegisterForm = () => {
     cpf: "",
     birthDate: "",
     gender: "",
-    password: "",
-    confirmPassword: "",
     verificationCode: "",
   });
 
@@ -29,13 +25,6 @@ const RegisterForm = () => {
     }));
   };
 
-  const handlePhoneChange = (value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      phone: value
-    }));
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (step === 1) {
@@ -44,22 +33,6 @@ const RegisterForm = () => {
         toast({
           title: "Erro",
           description: "Por favor, insira um email válido",
-          variant: "destructive",
-        });
-        return;
-      }
-      if (formData.password !== formData.confirmPassword) {
-        toast({
-          title: "Erro",
-          description: "As senhas não coincidem",
-          variant: "destructive",
-        });
-        return;
-      }
-      if (formData.password.length < 6) {
-        toast({
-          title: "Erro",
-          description: "A senha deve ter pelo menos 6 caracteres",
           variant: "destructive",
         });
         return;
@@ -134,12 +107,14 @@ const RegisterForm = () => {
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
                 Telefone
               </label>
-              <PhoneInput
-                country={'br'}
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                required
                 value={formData.phone}
-                onChange={handlePhoneChange}
-                containerClass="mt-1"
-                inputClass="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                onChange={handleChange}
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
               />
             </div>
 
@@ -153,36 +128,6 @@ const RegisterForm = () => {
                 type="email"
                 required
                 value={formData.email}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Senha
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirmar Senha
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                required
-                value={formData.confirmPassword}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
               />
