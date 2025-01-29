@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import { supabase } from "@/integrations/supabase/client";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
@@ -10,6 +13,8 @@ const RegisterForm = () => {
     lastName: "",
     phone: "",
     email: "",
+    password: "",
+    confirmPassword: "",
     cpf: "",
     birthDate: "",
     gender: "",
@@ -25,7 +30,14 @@ const RegisterForm = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handlePhoneChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      phone: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (step === 1) {
       // Validate fields and move to verification step
@@ -37,6 +49,25 @@ const RegisterForm = () => {
         });
         return;
       }
+
+      if (formData.password !== formData.confirmPassword) {
+        toast({
+          title: "Erro",
+          description: "As senhas não coincidem",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (formData.password.length < 6) {
+        toast({
+          title: "Erro",
+          description: "A senha deve ter pelo menos 6 caracteres",
+          variant: "destructive",
+        });
+        return;
+      }
+
       setStep(2);
       toast({
         title: "Código enviado",
@@ -52,11 +83,37 @@ const RegisterForm = () => {
         });
         return;
       }
-      toast({
-        title: "Conta criada",
-        description: "Sua conta foi criada com sucesso!",
-      });
-      navigate("/");
+
+      try {
+        const { error } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            data: {
+              first_name: formData.firstName,
+              last_name: formData.lastName,
+              phone: formData.phone,
+              cpf: formData.cpf,
+              birth_date: formData.birthDate,
+              gender: formData.gender,
+            }
+          }
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Conta criada",
+          description: "Sua conta foi criada com sucesso!",
+        });
+        navigate("/");
+      } catch (error: any) {
+        toast({
+          title: "Erro",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -107,14 +164,13 @@ const RegisterForm = () => {
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
                 Telefone
               </label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                required
+              <PhoneInput
+                country="br"
                 value={formData.phone}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                onChange={handlePhoneChange}
+                inputClass="!w-full !px-3 !py-2 !bg-white !border !border-gray-300 !rounded-md !shadow-sm focus:!outline-none focus:!ring-primary focus:!border-primary"
+                containerClass="!w-full"
+                buttonClass="!border !border-gray-300 !rounded-l-md"
               />
             </div>
 
@@ -128,6 +184,36 @@ const RegisterForm = () => {
                 type="email"
                 required
                 value={formData.email}
+                onChange={handleChange}
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Senha
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                Confirmar Senha
+              </label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                required
+                value={formData.confirmPassword}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
               />

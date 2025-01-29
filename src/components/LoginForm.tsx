@@ -1,18 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loginAttempts, setLoginAttempts] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // For now, just validate email format
     if (!email.includes("@")) {
       toast({
         title: "Erro",
@@ -22,37 +21,34 @@ const LoginForm = () => {
       return;
     }
 
-    // Mock login logic - increment attempts
-    setLoginAttempts(prev => prev + 1);
-    
-    if (loginAttempts >= 2) {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
       toast({
-        title: "Acesso bloqueado",
-        description: "Muitas tentativas. Um email de recuperação foi enviado.",
+        title: "Sucesso",
+        description: "Login realizado com sucesso",
+      });
+      navigate("/home");
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message,
         variant: "destructive",
       });
-      return;
     }
-
-    toast({
-      title: "Erro",
-      description: "Email ou senha inválidos. Tente novamente.",
-      variant: "destructive",
-    });
-  };
-
-  const handleDevAccess = () => {
-    toast({
-      title: "Sucesso",
-      description: "Acesso de desenvolvedor concedido",
-    });
-    navigate("/home");
   };
 
   return (
     <div className="w-full max-w-md space-y-8">
       <div className="text-center">
-        <h2 className="text-3xl font-bold text-gray-900">Vestoria</h2>
+        <div className="bg-white w-full py-4 mb-4">
+          <h2 className="text-3xl font-bold text-gray-900">Vestoria</h2>
+        </div>
         <p className="mt-2 text-sm text-gray-600">
           Entre para começar a investir
         </p>
@@ -125,15 +121,6 @@ const LoginForm = () => {
             className="w-full flex justify-center py-2 px-4 border border-primary rounded-md shadow-sm text-sm font-medium text-primary bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
           >
             Criar uma conta
-          </button>
-        </div>
-
-        <div className="mt-4">
-          <button
-            onClick={handleDevAccess}
-            className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-          >
-            Acesso Desenvolvedor
           </button>
         </div>
       </div>

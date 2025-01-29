@@ -247,14 +247,30 @@ const Home = () => {
               <h4 className="font-semibold mb-4">Suporte</h4>
               <ul className="space-y-2">
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-primary">
+                  <button
+                    onClick={() => {
+                      const supportTab = document.querySelector('[value="support"]');
+                      if (supportTab instanceof HTMLElement) {
+                        supportTab.click();
+                      }
+                    }}
+                    className="text-gray-600 hover:text-primary"
+                  >
                     Central de Ajuda
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-600 hover:text-primary">
+                  <button
+                    onClick={() => {
+                      const supportTab = document.querySelector('[value="support"]');
+                      if (supportTab instanceof HTMLElement) {
+                        supportTab.click();
+                      }
+                    }}
+                    className="text-gray-600 hover:text-primary"
+                  >
                     Contato
-                  </a>
+                  </button>
                 </li>
               </ul>
             </div>
