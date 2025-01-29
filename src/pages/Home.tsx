@@ -244,21 +244,6 @@ const Home = () => {
         <div className="container mx-auto px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h4 className="font-semibold mb-4">Links Rápidos</h4>
-              <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-primary">
-                    Termos de Uso
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-600 hover:text-primary">
-                    Política de Privacidade
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
               <h4 className="font-semibold mb-4">Suporte</h4>
               <ul className="space-y-2">
                 <li>
@@ -286,6 +271,9 @@ const Home = () => {
                   Twitter
                 </a>
               </div>
+            </div>
+            <div className="text-center md:text-right">
+              <p className="text-gray-600">© 2024 Vestoria. Todos os direitos reservados.</p>
             </div>
           </div>
         </div>
