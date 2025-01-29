@@ -1,17 +1,9 @@
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
 import {
   BarChart,
   Settings,
@@ -19,9 +11,9 @@ import {
   Wallet,
   HelpCircle,
   ArrowUpRight,
-  ArrowDownRight,
   Mail,
   MessageSquare,
+  Copy,
 } from "lucide-react";
 import {
   AreaChart,
@@ -42,11 +34,12 @@ const data = [
 ];
 
 const Home = () => {
-  const navigate = useNavigate();
-  const accountBalance = 5000; // Example balance
+  const [availableBalance, setAvailableBalance] = useState(5000); // Example initial balance
+  const [withdrawAmount, setWithdrawAmount] = useState("");
 
-  const handleWithdrawal = (amount: number) => {
-    if (amount > accountBalance) {
+  const handleWithdrawal = () => {
+    const amount = parseFloat(withdrawAmount);
+    if (amount > availableBalance) {
       toast.error("Saldo insuficiente para saque");
       return;
     }
@@ -54,52 +47,20 @@ const Home = () => {
       toast.error("Digite um valor válido para saque");
       return;
     }
+    setAvailableBalance(prev => prev - amount);
     toast.success("Solicitação de saque enviada com sucesso!");
+    setWithdrawAmount("");
+  };
+
+  const handleCopyReferralLink = () => {
+    const referralLink = "https://vestoria.com/ref/123456"; // Example referral link
+    navigator.clipboard.writeText(referralLink)
+      .then(() => toast.success("Link de indicação copiado!"))
+      .catch(() => toast.error("Erro ao copiar link"));
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm p-4">
-        <NavigationMenu>
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Dashboard</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <div className="grid gap-3 p-4 w-[400px]">
-                  <NavigationMenuLink className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer">
-                    <BarChart className="w-4 h-4" />
-                    <span>Visão Geral</span>
-                  </NavigationMenuLink>
-                </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Investimentos</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <div className="grid gap-3 p-4 w-[400px]">
-                  <NavigationMenuLink className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer">
-                    <Wallet className="w-4 h-4" />
-                    <span>Novo Investimento</span>
-                  </NavigationMenuLink>
-                </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Suporte</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <div className="grid gap-3 p-4 w-[400px]">
-                  <NavigationMenuLink className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer">
-                    <HelpCircle className="w-4 h-4" />
-                    <span>Central de Ajuda</span>
-                  </NavigationMenuLink>
-                </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-      </nav>
-
       <main className="container mx-auto p-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Vestoria</h1>
@@ -147,11 +108,11 @@ const Home = () => {
 
               <Card className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">Rendimento Atual</h3>
-                  <ArrowUpRight className="text-green-500" />
+                  <h3 className="text-lg font-semibold">Saldo Disponível</h3>
+                  <Wallet className="text-green-500" />
                 </div>
-                <p className="text-3xl font-bold">R$ 750,00</p>
-                <p className="text-sm text-gray-500">30 dias restantes</p>
+                <p className="text-3xl font-bold">R$ {availableBalance.toFixed(2)}</p>
+                <p className="text-sm text-gray-500">Disponível para saque</p>
               </Card>
 
               <Card className="p-6">
@@ -200,24 +161,17 @@ const Home = () => {
               <h3 className="text-lg font-semibold mb-4">Solicitar Saque</h3>
               <div className="space-y-4">
                 <p className="text-sm text-gray-600">
-                  Saldo disponível: R$ {accountBalance.toFixed(2)}
+                  Saldo disponível: R$ {availableBalance.toFixed(2)}
                 </p>
                 <Input
                   type="number"
                   placeholder="Digite o valor para saque"
-                  onChange={(e) => {
-                    const value = parseFloat(e.target.value);
-                    if (value > accountBalance) {
-                      toast.error("Valor maior que o saldo disponível");
-                    }
-                  }}
+                  value={withdrawAmount}
+                  onChange={(e) => setWithdrawAmount(e.target.value)}
                 />
                 <Button
                   className="w-full"
-                  onClick={() => {
-                    const input = document.querySelector('input[type="number"]') as HTMLInputElement;
-                    handleWithdrawal(parseFloat(input.value));
-                  }}
+                  onClick={handleWithdrawal}
                 >
                   Solicitar Saque
                 </Button>
@@ -229,8 +183,20 @@ const Home = () => {
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Programa de Indicação</h3>
               <div className="space-y-4">
-                <Input readOnly value="https://vestoria.com/ref/123456" />
-                <Button className="w-full">Copiar Link de Indicação</Button>
+                <div className="flex gap-2">
+                  <Input 
+                    readOnly 
+                    value="https://vestoria.com/ref/123456"
+                    className="flex-1"
+                  />
+                  <Button 
+                    onClick={handleCopyReferralLink}
+                    className="flex items-center gap-2"
+                  >
+                    <Copy className="w-4 h-4" />
+                    Copiar Link
+                  </Button>
+                </div>
               </div>
             </Card>
           </TabsContent>
@@ -274,7 +240,6 @@ const Home = () => {
         </Tabs>
       </main>
 
-      {/* Footer */}
       <footer className="bg-white border-t mt-12 py-8">
         <div className="container mx-auto px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
