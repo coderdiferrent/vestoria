@@ -8,6 +8,7 @@ import Register from "./pages/Register";
 import Home from "./pages/Home";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
+import Investment from "./pages/Investment";
 
 const queryClient = new QueryClient();
 
@@ -22,7 +23,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/home" element={<Home />} />
-          <Route path="/investments" element={<Navigate to="/home" />} />
+          <Route path="/investments" element={<Investment />} />
           <Route path="/withdraw" element={<Navigate to="/home" />} />
           <Route path="/referral" element={<Navigate to="/home" />} />
           <Route path="/settings" element={<Navigate to="/home" />} />
