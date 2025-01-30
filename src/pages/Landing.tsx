@@ -50,12 +50,15 @@ const Landing = () => {
       {/* Header */}
       <header className="container mx-auto px-4 py-6 flex justify-between items-center">
         <div className="flex items-center space-x-2">
-          <img src="/logo.png" alt="Vestoria Logo" className="h-8" />
-          <span className="text-2xl font-bold text-gray-900">Vestoria</span>
+          <img 
+            src="/lovable-uploads/3cf47780-4cf6-44f1-99ea-65f2fed0506c.png" 
+            alt="Vestoria Logo" 
+            className="h-12" 
+          />
         </div>
         <Button
           variant="outline"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/login")}
           className="flex items-center gap-2"
         >
           <LogIn className="w-4 h-4" />
