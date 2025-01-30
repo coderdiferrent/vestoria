@@ -22,6 +22,11 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/investments" element={<Navigate to="/home" />} />
+          <Route path="/withdraw" element={<Navigate to="/home" />} />
+          <Route path="/referral" element={<Navigate to="/home" />} />
+          <Route path="/settings" element={<Navigate to="/home" />} />
+          <Route path="/support" element={<Navigate to="/home" />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
