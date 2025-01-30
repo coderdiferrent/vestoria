@@ -47,7 +47,11 @@ const LoginForm = () => {
     <div className="w-full max-w-md space-y-8">
       <div className="text-center">
         <div className="bg-white w-full py-4 mb-4">
-          <h2 className="text-3xl font-bold text-gray-900">Vestoria</h2>
+          <img 
+            src="/lovable-uploads/3cf47780-4cf6-44f1-99ea-65f2fed0506c.png" 
+            alt="Vestoria Logo" 
+            className="h-16 mx-auto"
+          />
         </div>
         <p className="mt-2 text-sm text-gray-600">
           Entre para começar a investir
