@@ -51,7 +51,7 @@ const Landing = () => {
       <header className="container mx-auto px-4 py-6 flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <img 
-            src="/lovable-uploads/3cf47780-4cf6-44f1-99ea-65f2fed0506c.png" 
+            src="/lovable-uploads/075d72e8-62cc-4d2f-8bcc-74c56c805993.png" 
             alt="Vestoria Logo" 
             className="h-12" 
           />
