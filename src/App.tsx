@@ -9,6 +9,8 @@ import Home from "./pages/Home";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 import Investment from "./pages/Investment";
+import Withdraw from "./pages/Withdraw";
+import Referral from "./pages/Referral";
 
 const queryClient = new QueryClient();
 
@@ -24,8 +26,8 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route path="/home" element={<Home />} />
           <Route path="/investments" element={<Investment />} />
-          <Route path="/withdraw" element={<Navigate to="/home" />} />
-          <Route path="/referral" element={<Navigate to="/home" />} />
+          <Route path="/withdraw" element={<Withdraw />} />
+          <Route path="/referral" element={<Referral />} />
           <Route path="/settings" element={<Navigate to="/home" />} />
           <Route path="/support" element={<Navigate to="/home" />} />
           <Route path="*" element={<NotFound />} />
