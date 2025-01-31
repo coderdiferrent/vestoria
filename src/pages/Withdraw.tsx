@@ -21,6 +21,31 @@ type PixAccount = {
   key: string;
 };
 
+const validateEmail = (email: string) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
+const validatePhone = (phone: string) => {
+  return /^\(\d{2}\) \d{5}-\d{4}$/.test(phone);
+};
+
+const validateCPF = (cpf: string) => {
+  return /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf);
+};
+
+const formatPhone = (value: string) => {
+  const numbers = value.replace(/\D/g, "");
+  if (numbers.length <= 11) {
+    return numbers.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+  }
+  return value;
+};
+
+const formatCPF = (value: string) => {
+  const numbers = value.replace(/\D/g, "");
+  return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+};
+
 const Withdraw = () => {
   const { toast } = useToast();
   const [pixAccounts, setPixAccounts] = useState<PixAccount[]>([]);
@@ -32,6 +57,11 @@ const Withdraw = () => {
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const [selectedAccountId, setSelectedAccountId] = useState<string>("");
 
+  // Mock data for testing - this would normally come from the database
+  const mockInvestmentData = {
+    available_balance: 1000.00,
+  };
+
   // Fetch available balance
   const { data: investmentData } = useQuery({
     queryKey: ['investments'],
@@ -42,15 +72,56 @@ const Withdraw = () => {
         .maybeSingle();
       
       if (error) throw error;
-      return data;
+      // Use mock data for testing if no real data exists
+      return data || mockInvestmentData;
     },
   });
+
+  const validatePixKey = (type: string, key: string) => {
+    switch (type) {
+      case "email":
+        return validateEmail(key);
+      case "phone":
+        return validatePhone(key);
+      case "cpf":
+        return validateCPF(key);
+      case "random":
+        return key.length > 0;
+      default:
+        return false;
+    }
+  };
+
+  const formatPixKey = (type: string, key: string) => {
+    switch (type) {
+      case "phone":
+        return formatPhone(key);
+      case "cpf":
+        return formatCPF(key);
+      default:
+        return key;
+    }
+  };
+
+  const handleKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedKey = formatPixKey(newAccount.type, e.target.value);
+    setNewAccount({ ...newAccount, key: formattedKey });
+  };
 
   const handleAddAccount = () => {
     if (!newAccount.type || !newAccount.name || !newAccount.key) {
       toast({
         title: "Erro",
         description: "Por favor, preencha todos os campos",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!validatePixKey(newAccount.type, newAccount.key)) {
+      toast({
+        title: "Erro",
+        description: `Formato inválido para ${newAccount.type.toUpperCase()}`,
         variant: "destructive",
       });
       return;
@@ -157,8 +228,13 @@ const Withdraw = () => {
                 </label>
                 <Input
                   value={newAccount.key}
-                  onChange={(e) => setNewAccount({ ...newAccount, key: e.target.value })}
-                  placeholder="Digite a chave PIX"
+                  onChange={handleKeyChange}
+                  placeholder={
+                    newAccount.type === "email" ? "exemplo@email.com" :
+                    newAccount.type === "phone" ? "(00) 00000-0000" :
+                    newAccount.type === "cpf" ? "000.000.000-00" :
+                    "Digite a chave PIX"
+                  }
                 />
               </div>
 
