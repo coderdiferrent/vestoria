@@ -1,42 +1,27 @@
 import { useState } from "react";
-import { Check, Copy } from "lucide-react";
 import AppHeader from "@/components/home/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { toast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+
+const ReferralLevels = [
+  { level: 1, commission: "10%" },
+  { level: 2, commission: "1%" },
+  { level: 3, commission: "1%" },
+];
 
 const Referral = () => {
-  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
+  const [referralCode] = useState("VEST123"); // Example code
+  const [referralLink] = useState("https://vestoria.com/register?ref=VEST123"); // Example link
 
-  const { data: user } = useQuery({
-    queryKey: ['user'],
-    queryFn: async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) throw error;
-      return user;
-    },
-  });
-
-  const referralLink = `https://vestoria.com/register?ref=${user?.id}`;
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(referralLink);
-      setCopied(true);
-      toast({
-        title: "Sucesso",
-        description: "Link copiado para a área de transferência!",
-      });
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível copiar o link. Tente novamente.",
-        variant: "destructive",
-      });
-    }
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copiado!",
+      description: "Link copiado para a área de transferência",
+    });
   };
 
   return (
@@ -45,76 +30,107 @@ const Referral = () => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
-          <div className="text-center space-y-4">
-            <h1 className="text-3xl font-bold">Programa de Indicação</h1>
-            <p className="text-gray-600">
-              Indique amigos e ganhe bônus em seus investimentos
-            </p>
+          <h1 className="text-3xl font-bold text-center">Programa de Indicação</h1>
+          
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="p-6 text-center">
+              <h3 className="text-lg font-semibold mb-2">Total de Indicados</h3>
+              <p className="text-3xl font-bold">0</p>
+            </Card>
+            
+            <Card className="p-6 text-center">
+              <h3 className="text-lg font-semibold mb-2">Indicados Ativos</h3>
+              <p className="text-3xl font-bold">0</p>
+            </Card>
+            
+            <Card className="p-6 text-center">
+              <h3 className="text-lg font-semibold mb-2">Ganhos Totais</h3>
+              <p className="text-3xl font-bold">R$ 0,00</p>
+            </Card>
           </div>
 
+          {/* Commission Levels */}
           <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-6">Seu Link de Indicação</h2>
-            
-            <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-              <code className="flex-1 text-sm break-all">{referralLink}</code>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleCopy}
-                className="shrink-0"
-              >
-                {copied ? (
-                  <Check className="h-4 w-4 text-green-500" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-              </Button>
+            <h2 className="text-xl font-semibold mb-6">Tabela de Comissões</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {ReferralLevels.map((level) => (
+                <div
+                  key={level.level}
+                  className="p-4 border rounded-lg text-center"
+                >
+                  <h3 className="font-semibold mb-2">Nível {level.level}</h3>
+                  <p className="text-2xl font-bold text-primary">
+                    {level.commission}
+                  </p>
+                </div>
+              ))}
             </div>
           </Card>
 
+          {/* Referral Link and Code */}
           <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Como Funciona</h2>
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center p-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-primary font-bold">1</span>
-                  </div>
-                  <h3 className="font-semibold mb-2">Compartilhe</h3>
-                  <p className="text-gray-600 text-sm">
-                    Envie seu link de indicação para amigos
-                  </p>
-                </div>
-                <div className="text-center p-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-primary font-bold">2</span>
-                  </div>
-                  <h3 className="font-semibold mb-2">Investimento</h3>
-                  <p className="text-gray-600 text-sm">
-                    Seus amigos realizam o primeiro investimento
-                  </p>
-                </div>
-                <div className="text-center p-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-primary font-bold">3</span>
-                  </div>
-                  <h3 className="font-semibold mb-2">Bônus</h3>
-                  <p className="text-gray-600 text-sm">
-                    Receba 5% do primeiro investimento como bônus
-                  </p>
-                </div>
+            <h2 className="text-xl font-semibold mb-6">Seu Link de Indicação</h2>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <input
+                  type="text"
+                  value={referralLink}
+                  readOnly
+                  className="flex-1 px-3 py-2 border rounded-md bg-gray-50"
+                />
+                <Button onClick={() => copyToClipboard(referralLink)}>
+                  Copiar Link
+                </Button>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <input
+                  type="text"
+                  value={referralCode}
+                  readOnly
+                  className="flex-1 px-3 py-2 border rounded-md bg-gray-50"
+                />
+                <Button onClick={() => copyToClipboard(referralCode)}>
+                  Copiar Código
+                </Button>
               </div>
             </div>
           </Card>
 
+          {/* Detailed Information Tabs */}
           <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Termos e Condições</h2>
-            <ul className="list-disc list-inside space-y-2 text-gray-600">
-              <li>O bônus é calculado sobre o primeiro investimento do indicado</li>
-              <li>O valor mínimo de investimento para ganhar o bônus é R$ 100,00</li>
-              <li>O bônus é creditado em até 7 dias úteis após o investimento</li>
-              <li>O programa pode ser alterado ou encerrado a qualquer momento</li>
-            </ul>
+            <Tabs defaultValue="earnings">
+              <TabsList className="w-full">
+                <TabsTrigger value="earnings" className="flex-1">
+                  Ganhos
+                </TabsTrigger>
+                <TabsTrigger value="registered" className="flex-1">
+                  Cadastrados
+                </TabsTrigger>
+                <TabsTrigger value="active" className="flex-1">
+                  Ativos
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="earnings" className="mt-6">
+                <div className="text-center text-gray-600">
+                  Nenhum ganho registrado ainda
+                </div>
+              </TabsContent>
+
+              <TabsContent value="registered" className="mt-6">
+                <div className="text-center text-gray-600">
+                  Nenhum usuário cadastrado ainda
+                </div>
+              </TabsContent>
+
+              <TabsContent value="active" className="mt-6">
+                <div className="text-center text-gray-600">
+                  Nenhum usuário ativo ainda
+                </div>
+              </TabsContent>
+            </Tabs>
           </Card>
         </div>
       </main>
