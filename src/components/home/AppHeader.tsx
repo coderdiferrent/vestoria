@@ -1,70 +1,73 @@
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
-import { cn } from "@/lib/utils";
+import { Link, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Home, Investment, Wallet2, Users, Settings, HelpCircle } from "lucide-react";
 
 const AppHeader = () => {
+  const { toast } = useToast();
+  const location = useLocation();
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      window.location.href = "/login";
+    } catch (error: any) {
+      toast({
+        title: "Erro ao sair",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const menuItems = [
+    { path: "/home", label: "Dashboard", icon: Home },
+    { path: "/investments", label: "Investimentos", icon: Investment },
+    { path: "/withdraw", label: "Saque", icon: Wallet2 },
+    { path: "/referral", label: "Indicação", icon: Users },
+    { path: "/settings", label: "Configurações", icon: Settings },
+    { path: "/support", label: "Suporte", icon: HelpCircle },
+  ];
+
   return (
-    <header className="bg-white border-b">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center">
-          <img 
-            src="/lovable-uploads/075d72e8-62cc-4d2f-8bcc-74c56c805993.png" 
-            alt="Vestoria Logo" 
-            className="h-12"
-          />
-        </div>
-        
-        <NavigationMenu>
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                className={cn("px-4 py-2 hover:bg-gray-100 rounded-md")}
-                href="/home"
-              >
-                Dashboard
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                className={cn("px-4 py-2 hover:bg-gray-100 rounded-md")}
-                href="/investments"
-              >
-                Investimentos
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                className={cn("px-4 py-2 hover:bg-gray-100 rounded-md")}
-                href="/withdraw"
-              >
-                Saque
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                className={cn("px-4 py-2 hover:bg-gray-100 rounded-md")}
-                href="/referral"
-              >
-                Indicação
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                className={cn("px-4 py-2 hover:bg-gray-100 rounded-md")}
-                href="/settings"
-              >
-                Configurações
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                className={cn("px-4 py-2 hover:bg-gray-100 rounded-md")}
-                href="/support"
-              >
-                Suporte
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
+    <header className="bg-white shadow-sm">
+      <div className="container mx-auto px-4">
+        <nav className="flex flex-col md:flex-row items-center justify-between py-4 space-y-4 md:space-y-0">
+          <Link to="/home" className="text-2xl font-bold text-primary">
+            Vestoria
+          </Link>
+
+          <div className="flex flex-wrap justify-center gap-2 md:gap-4">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center px-3 py-2 rounded-md transition-colors ${
+                    location.pathname === item.path
+                      ? "bg-primary text-white"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  <Icon className="w-4 h-4 mr-2" />
+                  <span className="text-sm">{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+          <Button
+            variant="outline"
+            onClick={handleLogout}
+            className="w-full md:w-auto"
+          >
+            Sair
+          </Button>
+        </nav>
       </div>
     </header>
   );
