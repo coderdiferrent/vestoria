@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Home, Investment, Wallet2, Users, Settings, HelpCircle } from "lucide-react";
+import { Home, LineChart, Wallet2, Users, Settings, HelpCircle } from "lucide-react";
 
 const AppHeader = () => {
   const { toast } = useToast();
@@ -25,7 +25,7 @@ const AppHeader = () => {
 
   const menuItems = [
     { path: "/home", label: "Dashboard", icon: Home },
-    { path: "/investments", label: "Investimentos", icon: Investment },
+    { path: "/investments", label: "Investimentos", icon: LineChart },
     { path: "/withdraw", label: "Saque", icon: Wallet2 },
     { path: "/referral", label: "Indicação", icon: Users },
     { path: "/settings", label: "Configurações", icon: Settings },
