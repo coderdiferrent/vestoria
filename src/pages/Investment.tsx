@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AppHeader from "@/components/home/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useInvestmentData } from "@/hooks/use-investment-data";
 
 const INVESTMENT_VALUES = [
   50, 100, 200, 500, 1000, 1500, 3000, 5000, 
@@ -11,23 +14,73 @@ const INVESTMENT_VALUES = [
 ];
 
 const Investment = () => {
+  const navigate = useNavigate();
   const [selectedValue, setSelectedValue] = useState<number>(100);
+  const { data: investmentData, refetch: refetchInvestmentData } = useInvestmentData();
 
-  const handleInvestment = () => {
-    if (!selectedValue) {
+  const handleInvestment = async () => {
+    try {
+      if (!selectedValue) {
+        toast({
+          title: "Erro",
+          description: "Por favor, selecione um valor para investir.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const user = await supabase.auth.getUser();
+      if (!user.data.user) {
+        toast({
+          title: "Erro",
+          description: "Usuário não autenticado.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // If user already has an investment record, update it
+      if (investmentData) {
+        const { error } = await supabase
+          .from('investments')
+          .update({
+            total_invested: Number(investmentData.total_invested) + selectedValue,
+            available_balance: Number(investmentData.available_balance) + selectedValue,
+          })
+          .eq('user_id', user.data.user.id);
+
+        if (error) throw error;
+      } else {
+        // Create new investment record
+        const { error } = await supabase
+          .from('investments')
+          .insert({
+            user_id: user.data.user.id,
+            total_invested: selectedValue,
+            available_balance: selectedValue,
+            earnings_balance: 0,
+          });
+
+        if (error) throw error;
+      }
+
+      await refetchInvestmentData();
+
+      toast({
+        title: "Sucesso",
+        description: `Investimento de R$ ${selectedValue.toLocaleString('pt-BR')} realizado com sucesso!`,
+      });
+
+      // Redirect to home page after successful investment
+      navigate('/home');
+    } catch (error) {
+      console.error('Investment error:', error);
       toast({
         title: "Erro",
-        description: "Por favor, selecione um valor para investir.",
+        description: "Ocorreu um erro ao processar seu investimento. Tente novamente.",
         variant: "destructive",
       });
-      return;
     }
-
-    // TODO: Implement investment logic
-    toast({
-      title: "Sucesso",
-      description: `Investimento de R$ ${selectedValue.toLocaleString('pt-BR')} realizado com sucesso!`,
-    });
   };
 
   const handleSliderChange = (value: number[]) => {
