@@ -1,50 +1,18 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import AppHeader from "@/components/home/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { PixAccountForm } from "@/components/withdraw/PixAccountForm";
 import { SavedPixAccounts } from "@/components/withdraw/SavedPixAccounts";
+import { useInvestmentData } from "@/hooks/use-investment-data";
 
 const Withdraw = () => {
   const { toast } = useToast();
   const [selectedAccountId, setSelectedAccountId] = useState<string>("");
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
-
-  // Mock data for testing - this would normally come from the database
-  const mockInvestmentData = {
-    available_balance: 1000.00,
-  };
-
-  // Fetch available balance
-  const { data: investmentData } = useQuery({
-    queryKey: ['investments'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('investments')
-        .select('*')
-        .maybeSingle();
-      
-      if (error) throw error;
-      // Use mock data for testing if no real data exists
-      return data || mockInvestmentData;
-    },
-  });
-
-  const { refetch: refetchPixAccounts } = useQuery({
-    queryKey: ['pix_accounts'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('pix_accounts')
-        .select('*');
-      
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: investmentData, refetch: refetchInvestmentData } = useInvestmentData();
 
   const handleWithdraw = () => {
     if (!selectedAccountId || !withdrawalAmount) {
@@ -95,7 +63,7 @@ const Withdraw = () => {
           {/* Add New PIX Account */}
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-6">Adicionar Nova Conta PIX</h2>
-            <PixAccountForm onAccountAdded={refetchPixAccounts} />
+            <PixAccountForm onAccountAdded={refetchInvestmentData} />
           </Card>
 
           {/* Saved Accounts */}
@@ -104,7 +72,7 @@ const Withdraw = () => {
             <SavedPixAccounts
               selectedAccountId={selectedAccountId}
               onSelectAccount={setSelectedAccountId}
-              refetchAccounts={refetchPixAccounts}
+              refetchAccounts={refetchInvestmentData}
             />
           </Card>
 

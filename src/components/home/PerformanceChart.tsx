@@ -1,21 +1,9 @@
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
+import { useInvestmentData } from '@/hooks/use-investment-data';
 
 const PerformanceChart = () => {
-  const { data: investmentData } = useQuery({
-    queryKey: ['investments'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('investments')
-        .select('*')
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: investmentData } = useInvestmentData();
 
   const data = [
     { date: '01/03', value: 1000 },
