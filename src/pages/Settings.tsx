@@ -80,13 +80,27 @@ const Settings = () => {
       return;
     }
 
+    if (newPassword === oldPassword) {
+      toast({
+        title: "Erro",
+        description: "A nova senha deve ser diferente da senha atual",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.updateUser({
         password: newPassword,
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes("same_password")) {
+          throw new Error("A nova senha deve ser diferente da senha atual");
+        }
+        throw error;
+      }
 
       toast({
         title: "Senha alterada",
