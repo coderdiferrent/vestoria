@@ -15,7 +15,7 @@ const Settings = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const { data: profile } = useQuery({
+  const { data: profile, refetch } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -44,11 +44,16 @@ const Settings = () => {
         .update({
           first_name: profile?.first_name,
           last_name: profile?.last_name,
+          phone: profile?.phone,
+          cpf: profile?.cpf,
+          birth_date: profile?.birth_date,
         })
         .eq("id", user.id);
 
       if (error) throw error;
 
+      await refetch();
+      
       toast({
         title: "Perfil atualizado",
         description: "Suas informações foram atualizadas com sucesso.",
@@ -142,6 +147,41 @@ const Settings = () => {
                       value={profile?.last_name || ""}
                       onChange={(e) => profile && (profile.last_name = e.target.value)}
                       placeholder="Seu sobrenome"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Telefone
+                    </label>
+                    <Input
+                      value={profile?.phone || ""}
+                      onChange={(e) => profile && (profile.phone = e.target.value)}
+                      placeholder="Seu telefone"
+                      type="tel"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      CPF
+                    </label>
+                    <Input
+                      value={profile?.cpf || ""}
+                      onChange={(e) => profile && (profile.cpf = e.target.value)}
+                      placeholder="Seu CPF"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Data de Nascimento
+                    </label>
+                    <Input
+                      value={profile?.birth_date || ""}
+                      onChange={(e) => profile && (profile.birth_date = e.target.value)}
+                      placeholder="Sua data de nascimento"
+                      type="date"
                     />
                   </div>
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import AppHeader from "@/components/home/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Slider } from "@/components/ui/slider";
 import { toast } from "@/components/ui/use-toast";
 
 const INVESTMENT_VALUES = [
@@ -10,7 +11,7 @@ const INVESTMENT_VALUES = [
 ];
 
 const Investment = () => {
-  const [selectedValue, setSelectedValue] = useState<number | null>(null);
+  const [selectedValue, setSelectedValue] = useState<number>(100);
 
   const handleInvestment = () => {
     if (!selectedValue) {
@@ -29,6 +30,16 @@ const Investment = () => {
     });
   };
 
+  const handleSliderChange = (value: number[]) => {
+    const nearestValue = INVESTMENT_VALUES.reduce((prev, curr) => {
+      return Math.abs(curr - value[0]) < Math.abs(prev - value[0]) ? curr : prev;
+    });
+    setSelectedValue(nearestValue);
+  };
+
+  // Calculate slider value as percentage of max value
+  const sliderValue = [(selectedValue / 50000) * 100];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <AppHeader />
@@ -40,17 +51,31 @@ const Investment = () => {
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-6">Selecione o valor do investimento</h2>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {INVESTMENT_VALUES.map((value) => (
-                <Button
-                  key={value}
-                  variant={selectedValue === value ? "default" : "outline"}
-                  className="w-full"
-                  onClick={() => setSelectedValue(value)}
-                >
-                  R$ {value.toLocaleString('pt-BR')}
-                </Button>
-              ))}
+            <div className="space-y-8">
+              <div className="text-center text-3xl font-bold text-primary">
+                R$ {selectedValue.toLocaleString('pt-BR')}
+              </div>
+              
+              <Slider
+                value={sliderValue}
+                onValueChange={handleSliderChange}
+                max={100}
+                step={1}
+                className="my-4"
+              />
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {INVESTMENT_VALUES.map((value) => (
+                  <Button
+                    key={value}
+                    variant={selectedValue === value ? "default" : "outline"}
+                    className="w-full"
+                    onClick={() => setSelectedValue(value)}
+                  >
+                    R$ {value.toLocaleString('pt-BR')}
+                  </Button>
+                ))}
+              </div>
             </div>
             
             <div className="mt-8">
