@@ -6,56 +6,13 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-type PixAccount = {
-  id: string;
-  type: string;
-  name: string;
-  key: string;
-};
-
-const validateEmail = (email: string) => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-};
-
-const validatePhone = (phone: string) => {
-  return /^\(\d{2}\) \d{5}-\d{4}$/.test(phone);
-};
-
-const validateCPF = (cpf: string) => {
-  return /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf);
-};
-
-const formatPhone = (value: string) => {
-  const numbers = value.replace(/\D/g, "");
-  if (numbers.length <= 11) {
-    return numbers.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-  }
-  return value;
-};
-
-const formatCPF = (value: string) => {
-  const numbers = value.replace(/\D/g, "");
-  return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
-};
+import { PixAccountForm } from "@/components/withdraw/PixAccountForm";
+import { SavedPixAccounts } from "@/components/withdraw/SavedPixAccounts";
 
 const Withdraw = () => {
   const { toast } = useToast();
-  const [pixAccounts, setPixAccounts] = useState<PixAccount[]>([]);
-  const [newAccount, setNewAccount] = useState({
-    type: "",
-    name: "",
-    key: "",
-  });
-  const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const [selectedAccountId, setSelectedAccountId] = useState<string>("");
+  const [withdrawalAmount, setWithdrawalAmount] = useState("");
 
   // Mock data for testing - this would normally come from the database
   const mockInvestmentData = {
@@ -77,68 +34,17 @@ const Withdraw = () => {
     },
   });
 
-  const validatePixKey = (type: string, key: string) => {
-    switch (type) {
-      case "email":
-        return validateEmail(key);
-      case "phone":
-        return validatePhone(key);
-      case "cpf":
-        return validateCPF(key);
-      case "random":
-        return key.length > 0;
-      default:
-        return false;
-    }
-  };
-
-  const formatPixKey = (type: string, key: string) => {
-    switch (type) {
-      case "phone":
-        return formatPhone(key);
-      case "cpf":
-        return formatCPF(key);
-      default:
-        return key;
-    }
-  };
-
-  const handleKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedKey = formatPixKey(newAccount.type, e.target.value);
-    setNewAccount({ ...newAccount, key: formattedKey });
-  };
-
-  const handleAddAccount = () => {
-    if (!newAccount.type || !newAccount.name || !newAccount.key) {
-      toast({
-        title: "Erro",
-        description: "Por favor, preencha todos os campos",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!validatePixKey(newAccount.type, newAccount.key)) {
-      toast({
-        title: "Erro",
-        description: `Formato inválido para ${newAccount.type.toUpperCase()}`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const account: PixAccount = {
-      id: Date.now().toString(),
-      ...newAccount,
-    };
-
-    setPixAccounts([...pixAccounts, account]);
-    setNewAccount({ type: "", name: "", key: "" });
-    toast({
-      title: "Sucesso",
-      description: "Conta PIX adicionada com sucesso",
-    });
-  };
+  const { refetch: refetchPixAccounts } = useQuery({
+    queryKey: ['pix_accounts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pix_accounts')
+        .select('*');
+      
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const handleWithdraw = () => {
     if (!selectedAccountId || !withdrawalAmount) {
@@ -189,88 +95,18 @@ const Withdraw = () => {
           {/* Add New PIX Account */}
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-6">Adicionar Nova Conta PIX</h2>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tipo de PIX
-                </label>
-                <Select
-                  value={newAccount.type}
-                  onValueChange={(value) => setNewAccount({ ...newAccount, type: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo de PIX" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="email">E-mail</SelectItem>
-                    <SelectItem value="cpf">CPF</SelectItem>
-                    <SelectItem value="phone">Telefone</SelectItem>
-                    <SelectItem value="random">Chave Aleatória</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nome Completo
-                </label>
-                <Input
-                  value={newAccount.name}
-                  onChange={(e) => setNewAccount({ ...newAccount, name: e.target.value })}
-                  placeholder="Digite o nome completo"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Chave PIX
-                </label>
-                <Input
-                  value={newAccount.key}
-                  onChange={handleKeyChange}
-                  placeholder={
-                    newAccount.type === "email" ? "exemplo@email.com" :
-                    newAccount.type === "phone" ? "(00) 00000-0000" :
-                    newAccount.type === "cpf" ? "000.000.000-00" :
-                    "Digite a chave PIX"
-                  }
-                />
-              </div>
-
-              <Button onClick={handleAddAccount} className="w-full">
-                Salvar
-              </Button>
-            </div>
+            <PixAccountForm onAccountAdded={refetchPixAccounts} />
           </Card>
 
           {/* Saved Accounts */}
-          {pixAccounts.length > 0 && (
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-6">Contas Salvas</h2>
-              <div className="space-y-4">
-                {pixAccounts.map((account) => (
-                  <div
-                    key={account.id}
-                    className="p-4 border rounded-lg flex items-center justify-between"
-                  >
-                    <div>
-                      <p className="font-medium">{account.name}</p>
-                      <p className="text-sm text-gray-600">
-                        {account.type.toUpperCase()}: {account.key}
-                      </p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => setSelectedAccountId(account.id)}
-                    >
-                      Selecionar
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-6">Contas Salvas</h2>
+            <SavedPixAccounts
+              selectedAccountId={selectedAccountId}
+              onSelectAccount={setSelectedAccountId}
+              refetchAccounts={refetchPixAccounts}
+            />
+          </Card>
 
           {/* Withdrawal Form */}
           <Card className="p-6">
