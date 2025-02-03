@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { PixAccountForm } from "@/components/withdraw/PixAccountForm";
 import { SavedPixAccounts } from "@/components/withdraw/SavedPixAccounts";
 import { useInvestmentData } from "@/hooks/use-investment-data";
+import { supabase } from "@/integrations/supabase/client";
 
 const Withdraw = () => {
   const { toast } = useToast();
@@ -14,7 +15,7 @@ const Withdraw = () => {
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const { data: investmentData, refetch: refetchInvestmentData } = useInvestmentData();
 
-  const handleWithdraw = () => {
+  const handleWithdraw = async () => {
     if (!selectedAccountId || !withdrawalAmount) {
       toast({
         title: "Erro",
@@ -36,12 +37,41 @@ const Withdraw = () => {
       return;
     }
 
-    // TODO: Implement withdrawal logic
-    toast({
-      title: "Sucesso",
-      description: `Saque de R$ ${withdrawalAmount} solicitado com sucesso`,
-    });
-    setWithdrawalAmount("");
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Erro",
+          description: "Usuário não autenticado",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('investments')
+        .update({
+          available_balance: availableBalance - amount
+        })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso",
+        description: `Saque de R$ ${amount.toFixed(2)} realizado com sucesso`,
+      });
+      
+      setWithdrawalAmount("");
+      refetchInvestmentData();
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (

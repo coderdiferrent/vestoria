@@ -37,11 +37,13 @@ const Landing = () => {
   const testimonials = [
     {
       name: "Carlos Silva",
-      text: "Comecei com R$ 1.000 e em 40 dias já estava com R$ 2.000. Simplesmente incrível!"
+      text: "Comecei com R$ 1.000 e em 40 dias já estava com R$ 2.000. Simplesmente incrível!",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80"
     },
     {
       name: "Ana Paula",
-      text: "A melhor plataforma de investimentos que já utilizei. Suporte excepcional!"
+      text: "A melhor plataforma de investimentos que já utilizei. Suporte excepcional!",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80"
     }
   ];
 
@@ -114,8 +116,17 @@ const Landing = () => {
                 key={testimonial.name}
                 className="p-6 bg-white rounded-lg shadow-lg"
               >
-                <p className="text-gray-600 mb-4">"{testimonial.text}"</p>
-                <p className="font-semibold text-gray-900">- {testimonial.name}</p>
+                <div className="flex items-center gap-4 mb-4">
+                  <img
+                    src={testimonial.image}
+                    alt={testimonial.name}
+                    className="w-16 h-16 rounded-full object-cover"
+                  />
+                  <div>
+                    <p className="font-semibold text-gray-900">{testimonial.name}</p>
+                    <p className="text-gray-600 italic">"{testimonial.text}"</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
