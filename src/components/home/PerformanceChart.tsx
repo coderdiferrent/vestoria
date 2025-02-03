@@ -1,19 +1,25 @@
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Card } from '@/components/ui/card';
 import { useInvestmentData } from '@/hooks/use-investment-data';
+import { format, subDays } from 'date-fns';
 
 const PerformanceChart = () => {
   const { data: investmentData } = useInvestmentData();
 
-  const data = [
-    { date: '01/03', value: 1000 },
-    { date: '02/03', value: 1200 },
-    { date: '03/03', value: 1400 },
-    { date: '04/03', value: 1600 },
-    { date: '05/03', value: 1900 },
-    { date: '06/03', value: 2200 },
-    { date: '07/03', value: 2500 },
-  ];
+  // Generate last 7 days of data
+  const generateChartData = () => {
+    const data = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = subDays(new Date(), i);
+      data.push({
+        date: format(date, 'dd/MM'),
+        value: investmentData?.available_balance || 0,
+      });
+    }
+    return data;
+  };
+
+  const data = generateChartData();
 
   return (
     <div className="space-y-6">

@@ -45,7 +45,6 @@ const Investment = () => {
           .from('investments')
           .update({
             total_invested: Number(investmentData.total_invested) + selectedValue,
-            available_balance: Number(investmentData.available_balance) + selectedValue,
           })
           .eq('user_id', user.data.user.id);
 
@@ -57,7 +56,7 @@ const Investment = () => {
           .insert({
             user_id: user.data.user.id,
             total_invested: selectedValue,
-            available_balance: selectedValue,
+            available_balance: 0,
             earnings_balance: 0,
           });
 
