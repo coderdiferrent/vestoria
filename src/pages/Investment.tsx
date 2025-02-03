@@ -41,17 +41,17 @@ const Investment = () => {
 
       // If user already has an investment record, update it
       if (investmentData) {
-        const { error } = await supabase
+        const { error: investmentError } = await supabase
           .from('investments')
           .update({
             total_invested: Number(investmentData.total_invested) + selectedValue,
           })
           .eq('user_id', user.data.user.id);
 
-        if (error) throw error;
+        if (investmentError) throw investmentError;
       } else {
         // Create new investment record
-        const { error } = await supabase
+        const { error: investmentError } = await supabase
           .from('investments')
           .insert({
             user_id: user.data.user.id,
@@ -60,8 +60,20 @@ const Investment = () => {
             earnings_balance: 0,
           });
 
-        if (error) throw error;
+        if (investmentError) throw investmentError;
       }
+
+      // Record the transaction
+      const { error: transactionError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: user.data.user.id,
+          type: 'investment',
+          amount: selectedValue,
+          description: 'Novo investimento'
+        });
+
+      if (transactionError) throw transactionError;
 
       await refetchInvestmentData();
 
@@ -109,7 +121,7 @@ const Investment = () => {
               </div>
               
               <Slider
-                value={sliderValue}
+                value={[(selectedValue / 50000) * 100]}
                 onValueChange={handleSliderChange}
                 max={100}
                 step={1}

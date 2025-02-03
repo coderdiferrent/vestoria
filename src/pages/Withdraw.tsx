@@ -49,14 +49,27 @@ const Withdraw = () => {
         return;
       }
 
-      const { error } = await supabase
+      // Update investment balance
+      const { error: investmentError } = await supabase
         .from('investments')
         .update({
           available_balance: availableBalance - amount
         })
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (investmentError) throw investmentError;
+
+      // Record the withdrawal transaction
+      const { error: transactionError } = await supabase
+        .from('transactions')
+        .insert({
+          user_id: user.id,
+          type: 'withdrawal',
+          amount: amount,
+          description: 'Saque via PIX'
+        });
+
+      if (transactionError) throw transactionError;
 
       toast({
         title: "Sucesso",
