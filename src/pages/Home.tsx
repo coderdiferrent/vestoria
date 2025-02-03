@@ -2,6 +2,7 @@ import AppHeader from "@/components/home/AppHeader";
 import PerformanceChart from "@/components/home/PerformanceChart";
 import QuickActions from "@/components/home/QuickActions";
 import SupportSection from "@/components/home/SupportSection";
+import TransactionHistory from "@/components/home/TransactionHistory";
 
 const Home = () => {
   return (
@@ -24,6 +25,11 @@ const Home = () => {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <PerformanceChart />
           </div>
+
+          {/* Transaction History */}
+          <section className="space-y-4">
+            <TransactionHistory />
+          </section>
 
           {/* Quick Actions */}
           <section className="space-y-4">
