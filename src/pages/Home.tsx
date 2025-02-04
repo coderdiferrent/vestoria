@@ -12,33 +12,32 @@ const Home = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-8">
           {/* Welcome Section */}
-          <div className="text-center mb-12">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Bem-vindo à Vestoria
-            </h1>
-            <p className="text-gray-600">
-              Acompanhe seus investimentos e veja seu dinheiro crescer
-            </p>
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Visão Geral
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Acompanhe seus investimentos
+              </p>
+            </div>
+            <div className="flex gap-4">
+              <QuickActions />
+            </div>
           </div>
 
           {/* Performance Chart Section */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
+          <section>
             <PerformanceChart />
-          </div>
+          </section>
 
           {/* Transaction History */}
-          <section className="space-y-4">
+          <section className="mt-8">
             <TransactionHistory />
           </section>
 
-          {/* Quick Actions */}
-          <section className="space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900">Ações Rápidas</h2>
-            <QuickActions />
-          </section>
-
           {/* Support Section */}
-          <section className="mt-12">
+          <section className="mt-12 bg-white rounded-2xl p-6 shadow-lg">
             <SupportSection />
           </section>
         </div>
