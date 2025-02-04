@@ -1,4 +1,4 @@
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { Card } from '@/components/ui/card';
 import { useInvestmentData } from '@/hooks/use-investment-data';
 import { format, subDays } from 'date-fns';
@@ -9,11 +9,20 @@ const PerformanceChart = () => {
 
   const generateChartData = () => {
     const data = [];
+    const dailyRate = 0.05; // 5% daily return
+
     for (let i = 6; i >= 0; i--) {
       const date = subDays(new Date(), i);
+      const daysFromInvestment = 6 - i; // Calculate days since investment
+      const baseAmount = investmentData?.total_invested || 0;
+      
+      // Calculate compound interest: A = P(1 + r)^t
+      const earnings = baseAmount * Math.pow(1 + dailyRate, daysFromInvestment) - baseAmount;
+
       data.push({
         date: format(date, 'dd/MM'),
-        value: investmentData?.available_balance || 0,
+        earnings: Number(earnings.toFixed(2)),
+        totalValue: Number((baseAmount + earnings).toFixed(2)),
       });
     }
     return data;
@@ -85,11 +94,15 @@ const PerformanceChart = () => {
         </div>
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data}>
+            <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
               <defs>
-                <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.2}/>
+                <linearGradient id="colorEarnings" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.3}/>
                   <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
@@ -114,14 +127,37 @@ const PerformanceChart = () => {
                   borderRadius: '0.75rem',
                   boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)'
                 }}
-                formatter={(value: number) => [`R$ ${value}`, 'Valor']}
+                formatter={(value: number) => [`R$ ${value.toFixed(2)}`, '']}
+                labelFormatter={(label) => `Data: ${label}`}
+              />
+              <Legend 
+                verticalAlign="top" 
+                height={36}
+                formatter={(value) => {
+                  const labels = {
+                    earnings: 'Rendimentos',
+                    totalValue: 'Valor Total'
+                  };
+                  return labels[value as keyof typeof labels];
+                }}
               />
               <Area 
                 type="monotone" 
-                dataKey="value" 
+                dataKey="earnings" 
                 stroke="#4F46E5" 
-                fill="url(#colorValue)"
+                fill="url(#colorEarnings)"
                 strokeWidth={2}
+                dot={{ fill: '#4F46E5', strokeWidth: 2 }}
+                activeDot={{ r: 6, strokeWidth: 0 }}
+              />
+              <Area 
+                type="monotone" 
+                dataKey="totalValue" 
+                stroke="#10B981" 
+                fill="url(#colorTotal)"
+                strokeWidth={2}
+                dot={{ fill: '#10B981', strokeWidth: 2 }}
+                activeDot={{ r: 6, strokeWidth: 0 }}
               />
             </AreaChart>
           </ResponsiveContainer>
