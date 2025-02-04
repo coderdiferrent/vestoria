@@ -1,20 +1,16 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Home, LineChart, Wallet2, Users, Settings, HelpCircle, LogOut } from "lucide-react";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-} from "@/components/ui/sidebar";
+import { Home, LineChart, Wallet2, Users, Settings, HelpCircle, Menu, LogOut } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const AppHeader = () => {
   const { toast } = useToast();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const handleLogout = async () => {
     try {
@@ -40,50 +36,86 @@ const AppHeader = () => {
     { path: "/support", label: "Suporte", icon: HelpCircle },
   ];
 
-  return (
-    <SidebarProvider defaultOpen={false}>
-      <Sidebar variant="inset" collapsible="icon">
-        <SidebarHeader className="border-b border-white/10">
-          <Link to="/home" className="flex items-center justify-center h-16">
-            <span className="text-2xl font-bold text-white">Vestoria</span>
+  const renderMenuItems = () => (
+    <div className={`flex ${isMobile ? 'flex-col space-y-2' : 'flex-wrap justify-center gap-2 md:gap-4'}`}>
+      {menuItems.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`flex items-center px-3 py-2 rounded-md transition-colors ${
+              location.pathname === item.path
+                ? "bg-primary text-white"
+                : "text-gray-600 hover:bg-gray-100"
+            } ${isMobile ? 'w-full' : ''}`}
+          >
+            <Icon className="w-4 h-4 mr-2" />
+            <span className="text-sm">{item.label}</span>
           </Link>
-        </SidebarHeader>
-        
-        <SidebarContent className="py-4">
-          <SidebarMenu>
-            {menuItems.map((item) => (
-              <SidebarMenuItem key={item.path}>
-                <SidebarMenuButton
-                  asChild
-                  tooltip={item.label}
-                  className="text-white hover:bg-white/10"
-                >
-                  <Link to={item.path}>
-                    <item.icon className="w-5 h-5" />
-                    <span>{item.label}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarContent>
+        );
+      })}
+    </div>
+  );
 
-        <SidebarFooter className="border-t border-white/10">
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={handleLogout}
-                tooltip="Sair"
-                className="text-white hover:bg-white/10"
-              >
-                <LogOut className="w-5 h-5" />
-                <span>Sair</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-    </SidebarProvider>
+  if (isMobile) {
+    return (
+      <header className="bg-white shadow-sm">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between py-4">
+            <Link to="/home" className="text-2xl font-bold text-primary">
+              Vestoria
+            </Link>
+            
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px]">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <div className="mt-8 flex flex-col space-y-4">
+                  {renderMenuItems()}
+                  <Button
+                    variant="destructive"
+                    onClick={handleLogout}
+                    className="w-full mt-4"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sair
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  return (
+    <header className="bg-white shadow-sm">
+      <div className="container mx-auto px-4">
+        <nav className="flex flex-col md:flex-row items-center justify-between py-4 space-y-4 md:space-y-0">
+          <Link to="/home" className="text-2xl font-bold text-primary">
+            Vestoria
+          </Link>
+
+          {renderMenuItems()}
+
+          <Button
+            variant="outline"
+            onClick={handleLogout}
+            className="w-full md:w-auto"
+          >
+            Sair
+          </Button>
+        </nav>
+      </div>
+    </header>
   );
 };
 
