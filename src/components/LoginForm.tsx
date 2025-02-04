@@ -2,10 +2,22 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [resetEmailOpen, setResetEmailOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [isResetting, setIsResetting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -40,6 +52,33 @@ const LoginForm = () => {
         description: error.message,
         variant: "destructive",
       });
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsResetting(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Email enviado",
+        description: "Verifique sua caixa de entrada para redefinir sua senha",
+      });
+      setResetEmailOpen(false);
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -93,9 +132,13 @@ const LoginForm = () => {
 
         <div className="flex items-center justify-between">
           <div className="text-sm">
-            <a href="#" className="font-medium text-primary hover:text-secondary transition-colors duration-200">
+            <button
+              type="button"
+              onClick={() => setResetEmailOpen(true)}
+              className="font-medium text-primary hover:text-secondary transition-colors duration-200"
+            >
               Esqueceu sua senha?
-            </a>
+            </button>
           </div>
         </div>
 
@@ -128,6 +171,29 @@ const LoginForm = () => {
           </button>
         </div>
       </div>
+
+      <Dialog open={resetEmailOpen} onOpenChange={setResetEmailOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Redefinir senha</DialogTitle>
+            <DialogDescription>
+              Digite seu email para receber as instruções de redefinição de senha.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleResetPassword} className="space-y-4">
+            <Input
+              type="email"
+              placeholder="Seu email"
+              value={resetEmail}
+              onChange={(e) => setResetEmail(e.target.value)}
+              required
+            />
+            <Button type="submit" disabled={isResetting} className="w-full">
+              {isResetting ? "Enviando..." : "Enviar email de redefinição"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

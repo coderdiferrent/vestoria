@@ -1,10 +1,13 @@
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { useTransactions } from "@/hooks/use-transactions";
-import { ArrowUpRight, ArrowDownRight, TrendingUp } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 const TransactionHistory = () => {
   const { data: transactions } = useTransactions();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const getTransactionIcon = (type: string) => {
     switch (type) {
@@ -49,12 +52,26 @@ const TransactionHistory = () => {
     <Card className="p-6 bg-white rounded-2xl border-none shadow-lg">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-semibold text-gray-900">Histórico de Transações</h2>
-        <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-          Todas
+        <div className="flex items-center gap-2">
+          <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+            Todas
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="ml-2"
+          >
+            {isCollapsed ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronUp className="h-4 w-4" />
+            )}
+          </Button>
         </div>
       </div>
       
-      <div className="space-y-4">
+      <div className={`space-y-4 transition-all duration-300 ${isCollapsed ? 'hidden' : ''}`}>
         {transactions?.length === 0 && (
           <p className="text-gray-500 text-center py-4">
             Nenhuma transação encontrada
