@@ -1,8 +1,11 @@
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { Card } from '@/components/ui/card';
 import { useInvestmentData } from '@/hooks/use-investment-data';
-import { format, subDays } from 'date-fns';
-import { MoreHorizontal } from 'lucide-react';
+import { format, subDays, addDays, differenceInDays } from 'date-fns';
+import { MoreHorizontal, LockClosedIcon } from 'lucide-react';
+import { Tooltip as TooltipUI } from '@/components/ui/tooltip';
+import { TooltipTrigger } from '@radix-ui/react-tooltip';
+import { TooltipContent } from '@radix-ui/react-tooltip';
 
 const PerformanceChart = () => {
   const { data: investmentData } = useInvestmentData();
@@ -13,10 +16,9 @@ const PerformanceChart = () => {
 
     for (let i = 6; i >= 0; i--) {
       const date = subDays(new Date(), i);
-      const daysFromInvestment = 6 - i; // Calculate days since investment
+      const daysFromInvestment = 6 - i;
       const baseAmount = investmentData?.total_invested || 0;
       
-      // Calculate compound interest: A = P(1 + r)^t
       const earnings = baseAmount * Math.pow(1 + dailyRate, daysFromInvestment) - baseAmount;
 
       data.push({
@@ -29,6 +31,12 @@ const PerformanceChart = () => {
   };
 
   const data = generateChartData();
+  
+  // Calculate days until maturity
+  const investmentDate = investmentData?.created_at ? new Date(investmentData.created_at) : new Date();
+  const maturityDate = addDays(investmentDate, 10);
+  const daysUntilMaturity = Math.max(0, differenceInDays(maturityDate, new Date()));
+  const isMatured = daysUntilMaturity === 0;
 
   return (
     <div className="space-y-6">
@@ -41,12 +49,28 @@ const PerformanceChart = () => {
                 R$ {investmentData?.total_invested?.toFixed(2) || '0.00'}
               </p>
             </div>
-            <button className="text-blue-900/50 hover:text-blue-900">
-              <MoreHorizontal className="h-5 w-5" />
-            </button>
+            {!isMatured && (
+              <TooltipUI>
+                <TooltipTrigger>
+                  <div className="flex items-center text-blue-900/50">
+                    <LockClosedIcon className="h-5 w-5" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-sm">
+                    Bloqueado por mais {daysUntilMaturity} {daysUntilMaturity === 1 ? 'dia' : 'dias'}
+                  </p>
+                </TooltipContent>
+              </TooltipUI>
+            )}
           </div>
           <div className="mt-2 text-xs text-blue-900/60">
             Seu capital inicial
+            {!isMatured && (
+              <span className="block mt-1">
+                Disponível em {daysUntilMaturity} {daysUntilMaturity === 1 ? 'dia' : 'dias'}
+              </span>
+            )}
           </div>
         </Card>
         
@@ -58,12 +82,28 @@ const PerformanceChart = () => {
                 R$ {investmentData?.available_balance?.toFixed(2) || '0.00'}
               </p>
             </div>
-            <button className="text-purple-900/50 hover:text-purple-900">
-              <MoreHorizontal className="h-5 w-5" />
-            </button>
+            {!isMatured && (
+              <TooltipUI>
+                <TooltipTrigger>
+                  <div className="flex items-center text-purple-900/50">
+                    <LockClosedIcon className="h-5 w-5" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-sm">
+                    Bloqueado por mais {daysUntilMaturity} {daysUntilMaturity === 1 ? 'dia' : 'dias'}
+                  </p>
+                </TooltipContent>
+              </TooltipUI>
+            )}
           </div>
           <div className="mt-2 text-xs text-purple-900/60">
             Valor atual do investimento
+            {!isMatured && (
+              <span className="block mt-1">
+                Disponível em {daysUntilMaturity} {daysUntilMaturity === 1 ? 'dia' : 'dias'}
+              </span>
+            )}
           </div>
         </Card>
         

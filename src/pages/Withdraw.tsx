@@ -8,6 +8,8 @@ import { PixAccountForm } from "@/components/withdraw/PixAccountForm";
 import { SavedPixAccounts } from "@/components/withdraw/SavedPixAccounts";
 import { useInvestmentData } from "@/hooks/use-investment-data";
 import { supabase } from "@/integrations/supabase/client";
+import { differenceInDays, addDays } from "date-fns";
+import { LockClosedIcon } from "lucide-react";
 
 const Withdraw = () => {
   const { toast } = useToast();
@@ -15,11 +17,26 @@ const Withdraw = () => {
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const { data: investmentData, refetch: refetchInvestmentData } = useInvestmentData();
 
+  // Calculate maturity status
+  const investmentDate = investmentData?.created_at ? new Date(investmentData.created_at) : new Date();
+  const maturityDate = addDays(investmentDate, 10);
+  const daysUntilMaturity = Math.max(0, differenceInDays(maturityDate, new Date()));
+  const isMatured = daysUntilMaturity === 0;
+
   const handleWithdraw = async () => {
     if (!selectedAccountId || !withdrawalAmount) {
       toast({
         title: "Erro",
         description: "Por favor, selecione uma conta e insira um valor",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!isMatured) {
+      toast({
+        title: "Erro",
+        description: `Seu investimento ainda está bloqueado por ${daysUntilMaturity} ${daysUntilMaturity === 1 ? 'dia' : 'dias'}`,
         variant: "destructive",
       });
       return;
@@ -97,10 +114,22 @@ const Withdraw = () => {
           
           {/* Available Balance */}
           <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Saldo Disponível</h2>
-            <p className="text-3xl font-bold text-gray-900">
-              R$ {investmentData?.available_balance?.toFixed(2) || '0.00'}
-            </p>
+            <div className="flex justify-between items-start">
+              <div>
+                <h2 className="text-xl font-semibold mb-4">Saldo Disponível</h2>
+                <p className="text-3xl font-bold text-gray-900">
+                  R$ {investmentData?.available_balance?.toFixed(2) || '0.00'}
+                </p>
+              </div>
+              {!isMatured && (
+                <div className="flex items-center gap-2 bg-yellow-50 p-3 rounded-lg">
+                  <LockClosedIcon className="h-5 w-5 text-yellow-600" />
+                  <span className="text-sm text-yellow-600">
+                    Bloqueado por mais {daysUntilMaturity} {daysUntilMaturity === 1 ? 'dia' : 'dias'}
+                  </span>
+                </div>
+              )}
+            </div>
           </Card>
 
           {/* Add New PIX Account */}
@@ -134,15 +163,16 @@ const Withdraw = () => {
                   onChange={(e) => setWithdrawalAmount(e.target.value)}
                   placeholder="Digite o valor do saque"
                   max={investmentData?.available_balance || 0}
+                  disabled={!isMatured}
                 />
               </div>
 
               <Button 
                 onClick={handleWithdraw}
                 className="w-full"
-                disabled={!selectedAccountId || !withdrawalAmount || parseFloat(withdrawalAmount) > (investmentData?.available_balance || 0)}
+                disabled={!selectedAccountId || !withdrawalAmount || !isMatured || parseFloat(withdrawalAmount) > (investmentData?.available_balance || 0)}
               >
-                Sacar
+                {isMatured ? 'Sacar' : `Bloqueado por ${daysUntilMaturity} ${daysUntilMaturity === 1 ? 'dia' : 'dias'}`}
               </Button>
             </div>
           </Card>
