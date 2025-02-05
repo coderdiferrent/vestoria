@@ -7,6 +7,7 @@ import { Slider } from "@/components/ui/slider";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useInvestmentData } from "@/hooks/use-investment-data";
+import { usePaymentProcessing } from "@/hooks/use-payment-processing";
 
 const INVESTMENT_VALUES = [
   50, 100, 200, 500, 1000, 1500, 3000, 5000, 
@@ -17,6 +18,7 @@ const Investment = () => {
   const navigate = useNavigate();
   const [selectedValue, setSelectedValue] = useState<number>(100);
   const { data: investmentData, refetch: refetchInvestmentData } = useInvestmentData();
+  const { processPayment, isProcessing } = usePaymentProcessing();
 
   const handleInvestment = async () => {
     try {
@@ -39,7 +41,10 @@ const Investment = () => {
         return;
       }
 
-      // If user already has an investment record, update it
+      // Process payment first
+      await processPayment(selectedValue);
+
+      // If payment is successful, proceed with investment
       if (investmentData) {
         const { error: investmentError } = await supabase
           .from('investments')
@@ -50,7 +55,6 @@ const Investment = () => {
 
         if (investmentError) throw investmentError;
       } else {
-        // Create new investment record
         const { error: investmentError } = await supabase
           .from('investments')
           .insert({
@@ -63,7 +67,6 @@ const Investment = () => {
         if (investmentError) throw investmentError;
       }
 
-      // Record the transaction
       const { error: transactionError } = await supabase
         .from('transactions')
         .insert({
@@ -82,7 +85,6 @@ const Investment = () => {
         description: `Investimento de R$ ${selectedValue.toLocaleString('pt-BR')} realizado com sucesso!`,
       });
 
-      // Redirect to home page after successful investment
       navigate('/home');
     } catch (error) {
       console.error('Investment error:', error);
@@ -101,7 +103,6 @@ const Investment = () => {
     setSelectedValue(nearestValue);
   };
 
-  // Calculate slider value as percentage of max value
   const sliderValue = [(selectedValue / 50000) * 100];
 
   return (
@@ -121,7 +122,7 @@ const Investment = () => {
               </div>
               
               <Slider
-                value={[(selectedValue / 50000) * 100]}
+                value={sliderValue}
                 onValueChange={handleSliderChange}
                 max={100}
                 step={1}
@@ -146,9 +147,9 @@ const Investment = () => {
               <Button 
                 className="w-full md:w-auto"
                 onClick={handleInvestment}
-                disabled={!selectedValue}
+                disabled={!selectedValue || isProcessing}
               >
-                Investir Agora
+                {isProcessing ? 'Processando...' : 'Investir Agora'}
               </Button>
             </div>
           </Card>
