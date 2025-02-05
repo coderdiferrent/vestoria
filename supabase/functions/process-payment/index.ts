@@ -22,24 +22,25 @@ serve(async (req) => {
     console.log('Processing payment for amount:', amount);
 
     // Generate PIX payment with ZYON PAY API
-    const paymentResponse = await fetch('https://api.zyonpay.com/v1/pix/generate', {
+    const paymentResponse = await fetch('https://api.zyonpay.com/v1/pix', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${secretKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        amount: amount,
+        value: amount,
         description: `Investimento de R$ ${amount.toFixed(2)}`,
-        expiration: 3600, // 1 hour expiration
-        callback_url: 'https://api.zyonpay.com/v1/webhooks/pix', // Replace with your webhook URL
+        expires_in: 3600, // 1 hour expiration
+        type: 'pix',
+        callback_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/pix-webhook`,
       }),
     });
 
     if (!paymentResponse.ok) {
       const errorData = await paymentResponse.json();
       console.error('ZYON PAY API error:', errorData);
-      throw new Error('Failed to generate PIX payment');
+      throw new Error(`Failed to generate PIX payment: ${JSON.stringify(errorData)}`);
     }
 
     const paymentData = await paymentResponse.json();
