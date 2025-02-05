@@ -32,11 +32,11 @@ const PerformanceChart = () => {
 
   const data = generateChartData();
   
-  // Calculate days until maturity
+  // Calculate days until next earnings release
   const investmentDate = investmentData?.created_at ? new Date(investmentData.created_at) : new Date();
-  const maturityDate = addDays(investmentDate, 10);
-  const daysUntilMaturity = Math.max(0, differenceInDays(maturityDate, new Date()));
-  const isMatured = daysUntilMaturity === 0;
+  const nextReleaseDate = addDays(investmentDate, 10);
+  const daysUntilNextRelease = Math.max(0, differenceInDays(nextReleaseDate, new Date()));
+  const canWithdrawEarnings = daysUntilNextRelease === 0;
 
   return (
     <div className="space-y-6">
@@ -49,28 +49,9 @@ const PerformanceChart = () => {
                 R$ {investmentData?.total_invested?.toFixed(2) || '0.00'}
               </p>
             </div>
-            {!isMatured && (
-              <TooltipUI>
-                <TooltipTrigger>
-                  <div className="flex items-center text-blue-900/50">
-                    <Lock className="h-5 w-5" />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-sm">
-                    Bloqueado por mais {daysUntilMaturity} {daysUntilMaturity === 1 ? 'dia' : 'dias'}
-                  </p>
-                </TooltipContent>
-              </TooltipUI>
-            )}
           </div>
           <div className="mt-2 text-xs text-blue-900/60">
-            Seu capital inicial
-            {!isMatured && (
-              <span className="block mt-1">
-                Disponível em {daysUntilMaturity} {daysUntilMaturity === 1 ? 'dia' : 'dias'}
-              </span>
-            )}
+            Seu capital inicial (não resgatável)
           </div>
         </Card>
         
@@ -82,7 +63,7 @@ const PerformanceChart = () => {
                 R$ {investmentData?.available_balance?.toFixed(2) || '0.00'}
               </p>
             </div>
-            {!isMatured && (
+            {!canWithdrawEarnings && (
               <TooltipUI>
                 <TooltipTrigger>
                   <div className="flex items-center text-purple-900/50">
@@ -91,17 +72,17 @@ const PerformanceChart = () => {
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="text-sm">
-                    Bloqueado por mais {daysUntilMaturity} {daysUntilMaturity === 1 ? 'dia' : 'dias'}
+                    Próximo saque em {daysUntilNextRelease} {daysUntilNextRelease === 1 ? 'dia' : 'dias'}
                   </p>
                 </TooltipContent>
               </TooltipUI>
             )}
           </div>
           <div className="mt-2 text-xs text-purple-900/60">
-            Valor atual do investimento
-            {!isMatured && (
+            Rendimentos disponíveis para saque
+            {!canWithdrawEarnings && (
               <span className="block mt-1">
-                Disponível em {daysUntilMaturity} {daysUntilMaturity === 1 ? 'dia' : 'dias'}
+                Próximo saque em {daysUntilNextRelease} {daysUntilNextRelease === 1 ? 'dia' : 'dias'}
               </span>
             )}
           </div>

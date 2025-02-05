@@ -17,11 +17,11 @@ const Withdraw = () => {
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const { data: investmentData, refetch: refetchInvestmentData } = useInvestmentData();
 
-  // Calculate maturity status
+  // Calculate next earnings release
   const investmentDate = investmentData?.created_at ? new Date(investmentData.created_at) : new Date();
-  const maturityDate = addDays(investmentDate, 10);
-  const daysUntilMaturity = Math.max(0, differenceInDays(maturityDate, new Date()));
-  const isMatured = daysUntilMaturity === 0;
+  const nextReleaseDate = addDays(investmentDate, 10);
+  const daysUntilNextRelease = Math.max(0, differenceInDays(nextReleaseDate, new Date()));
+  const canWithdrawEarnings = daysUntilNextRelease === 0;
 
   const handleWithdraw = async () => {
     if (!selectedAccountId || !withdrawalAmount) {
@@ -33,10 +33,10 @@ const Withdraw = () => {
       return;
     }
 
-    if (!isMatured) {
+    if (!canWithdrawEarnings) {
       toast({
         title: "Erro",
-        description: `Seu investimento ainda está bloqueado por ${daysUntilMaturity} ${daysUntilMaturity === 1 ? 'dia' : 'dias'}`,
+        description: `Seus rendimentos estarão disponíveis em ${daysUntilNextRelease} ${daysUntilNextRelease === 1 ? 'dia' : 'dias'}`,
         variant: "destructive",
       });
       return;
@@ -121,11 +121,11 @@ const Withdraw = () => {
                   R$ {investmentData?.available_balance?.toFixed(2) || '0.00'}
                 </p>
               </div>
-              {!isMatured && (
+              {!canWithdrawEarnings && (
                 <div className="flex items-center gap-2 bg-yellow-50 p-3 rounded-lg">
                   <Lock className="h-5 w-5 text-yellow-600" />
                   <span className="text-sm text-yellow-600">
-                    Bloqueado por mais {daysUntilMaturity} {daysUntilMaturity === 1 ? 'dia' : 'dias'}
+                    Próximo saque em {daysUntilNextRelease} {daysUntilNextRelease === 1 ? 'dia' : 'dias'}
                   </span>
                 </div>
               )}
@@ -163,16 +163,16 @@ const Withdraw = () => {
                   onChange={(e) => setWithdrawalAmount(e.target.value)}
                   placeholder="Digite o valor do saque"
                   max={investmentData?.available_balance || 0}
-                  disabled={!isMatured}
+                  disabled={!canWithdrawEarnings}
                 />
               </div>
 
               <Button 
                 onClick={handleWithdraw}
                 className="w-full"
-                disabled={!selectedAccountId || !withdrawalAmount || !isMatured || parseFloat(withdrawalAmount) > (investmentData?.available_balance || 0)}
+                disabled={!selectedAccountId || !withdrawalAmount || !canWithdrawEarnings || parseFloat(withdrawalAmount) > (investmentData?.available_balance || 0)}
               >
-                {isMatured ? 'Sacar' : `Bloqueado por ${daysUntilMaturity} ${daysUntilMaturity === 1 ? 'dia' : 'dias'}`}
+                {canWithdrawEarnings ? 'Sacar' : `Próximo saque em ${daysUntilNextRelease} ${daysUntilNextRelease === 1 ? 'dia' : 'dias'}`}
               </Button>
             </div>
           </Card>
