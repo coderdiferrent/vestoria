@@ -15,9 +15,13 @@ export const usePaymentProcessing = () => {
 
       if (error) throw error;
 
+      if (!data.qrcode || !data.code) {
+        throw new Error('Dados do PIX não recebidos');
+      }
+
       toast({
-        title: "Pagamento processado",
-        description: "Seu pagamento foi processado com sucesso!",
+        title: "PIX gerado",
+        description: "Escaneie o QR Code ou copie o código PIX para realizar o pagamento",
       });
 
       return data;
@@ -25,7 +29,7 @@ export const usePaymentProcessing = () => {
       console.error('Payment error:', error);
       toast({
         title: "Erro no pagamento",
-        description: "Ocorreu um erro ao processar seu pagamento. Tente novamente.",
+        description: "Ocorreu um erro ao gerar o PIX. Tente novamente.",
         variant: "destructive",
       });
       throw error;

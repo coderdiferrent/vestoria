@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "@/components/ui/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useInvestmentData } from "@/hooks/use-investment-data";
 import { usePaymentProcessing } from "@/hooks/use-payment-processing";
@@ -17,6 +18,8 @@ const INVESTMENT_VALUES = [
 const Investment = () => {
   const navigate = useNavigate();
   const [selectedValue, setSelectedValue] = useState<number>(100);
+  const [pixData, setPixData] = useState<{ qrcode: string; code: string } | null>(null);
+  const [showPixDialog, setShowPixDialog] = useState(false);
   const { data: investmentData, refetch: refetchInvestmentData } = useInvestmentData();
   const { processPayment, isProcessing } = usePaymentProcessing();
 
@@ -41,51 +44,16 @@ const Investment = () => {
         return;
       }
 
-      // Process payment first
-      await processPayment(selectedValue);
-
-      // If payment is successful, proceed with investment
-      if (investmentData) {
-        const { error: investmentError } = await supabase
-          .from('investments')
-          .update({
-            total_invested: Number(investmentData.total_invested) + selectedValue,
-          })
-          .eq('user_id', user.data.user.id);
-
-        if (investmentError) throw investmentError;
-      } else {
-        const { error: investmentError } = await supabase
-          .from('investments')
-          .insert({
-            user_id: user.data.user.id,
-            total_invested: selectedValue,
-            available_balance: 0,
-            earnings_balance: 0,
-          });
-
-        if (investmentError) throw investmentError;
+      // Process payment and get PIX data
+      const paymentResult = await processPayment(selectedValue);
+      
+      if (paymentResult.qrcode && paymentResult.code) {
+        setPixData(paymentResult);
+        setShowPixDialog(true);
       }
 
-      const { error: transactionError } = await supabase
-        .from('transactions')
-        .insert({
-          user_id: user.data.user.id,
-          type: 'investment',
-          amount: selectedValue,
-          description: 'Novo investimento'
-        });
-
-      if (transactionError) throw transactionError;
-
-      await refetchInvestmentData();
-
-      toast({
-        title: "Sucesso",
-        description: `Investimento de R$ ${selectedValue.toLocaleString('pt-BR')} realizado com sucesso!`,
-      });
-
-      navigate('/home');
+      // The investment will be created/updated after payment confirmation
+      // This will be handled by a webhook in production
     } catch (error) {
       console.error('Investment error:', error);
       toast({
@@ -149,12 +117,51 @@ const Investment = () => {
                 onClick={handleInvestment}
                 disabled={!selectedValue || isProcessing}
               >
-                {isProcessing ? 'Processando...' : 'Investir Agora'}
+                {isProcessing ? 'Processando...' : 'Gerar PIX'}
               </Button>
             </div>
           </Card>
         </div>
       </main>
+
+      <Dialog open={showPixDialog} onOpenChange={setShowPixDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Pagamento PIX</DialogTitle>
+          </DialogHeader>
+          {pixData && (
+            <div className="space-y-4">
+              <div className="flex justify-center">
+                <img
+                  src={pixData.qrcode}
+                  alt="QR Code PIX"
+                  className="w-64 h-64"
+                />
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm text-gray-500">
+                  Código PIX (clique para copiar):
+                </p>
+                <div
+                  className="p-3 bg-gray-100 rounded-md cursor-pointer"
+                  onClick={() => {
+                    navigator.clipboard.writeText(pixData.code);
+                    toast({
+                      title: "Código copiado",
+                      description: "O código PIX foi copiado para sua área de transferência",
+                    });
+                  }}
+                >
+                  <p className="text-sm font-mono break-all">{pixData.code}</p>
+                </div>
+              </div>
+              <div className="text-center text-sm text-gray-500">
+                <p>Após o pagamento, seu investimento será processado automaticamente.</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
