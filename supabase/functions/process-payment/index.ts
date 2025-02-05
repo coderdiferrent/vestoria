@@ -19,25 +19,42 @@ serve(async (req) => {
       throw new Error('ZYON PAY secret key not configured');
     }
 
+    console.log('Processing payment for amount:', amount);
+
     // Generate PIX payment with ZYON PAY API
-    const paymentResponse = await fetch('https://api.zyonpay.com/v1/pix/payments', {
+    const paymentResponse = await fetch('https://api.zyonpay.com/v1/pix/generate', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${secretKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        amount,
-        currency: 'BRL',
-        payment_method: 'pix',
+        amount: amount,
         description: `Investimento de R$ ${amount.toFixed(2)}`,
+        expiration: 3600, // 1 hour expiration
+        callback_url: 'https://api.zyonpay.com/v1/webhooks/pix', // Replace with your webhook URL
       }),
     });
 
+    if (!paymentResponse.ok) {
+      const errorData = await paymentResponse.json();
+      console.error('ZYON PAY API error:', errorData);
+      throw new Error('Failed to generate PIX payment');
+    }
+
     const paymentData = await paymentResponse.json();
-    
+    console.log('Payment data received:', paymentData);
+
+    if (!paymentData.qr_code || !paymentData.copy_paste) {
+      console.error('Invalid payment data received:', paymentData);
+      throw new Error('Invalid payment data received from ZYON PAY');
+    }
+
     return new Response(
-      JSON.stringify(paymentData),
+      JSON.stringify({
+        qrcode: paymentData.qr_code,
+        code: paymentData.copy_paste,
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
