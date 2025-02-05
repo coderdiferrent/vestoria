@@ -9,7 +9,7 @@ import { SavedPixAccounts } from "@/components/withdraw/SavedPixAccounts";
 import { useInvestmentData } from "@/hooks/use-investment-data";
 import { supabase } from "@/integrations/supabase/client";
 import { differenceInDays, addDays } from "date-fns";
-import { LockClosedIcon } from "lucide-react";
+import { Lock } from "lucide-react";
 
 const Withdraw = () => {
   const { toast } = useToast();
@@ -123,7 +123,7 @@ const Withdraw = () => {
               </div>
               {!isMatured && (
                 <div className="flex items-center gap-2 bg-yellow-50 p-3 rounded-lg">
-                  <LockClosedIcon className="h-5 w-5 text-yellow-600" />
+                  <Lock className="h-5 w-5 text-yellow-600" />
                   <span className="text-sm text-yellow-600">
                     Bloqueado por mais {daysUntilMaturity} {daysUntilMaturity === 1 ? 'dia' : 'dias'}
                   </span>

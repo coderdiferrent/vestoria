@@ -2,7 +2,7 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tool
 import { Card } from '@/components/ui/card';
 import { useInvestmentData } from '@/hooks/use-investment-data';
 import { format, subDays, addDays, differenceInDays } from 'date-fns';
-import { MoreHorizontal, LockClosedIcon } from 'lucide-react';
+import { MoreHorizontal, Lock } from 'lucide-react';
 import { Tooltip as TooltipUI } from '@/components/ui/tooltip';
 import { TooltipTrigger } from '@radix-ui/react-tooltip';
 import { TooltipContent } from '@radix-ui/react-tooltip';
@@ -53,7 +53,7 @@ const PerformanceChart = () => {
               <TooltipUI>
                 <TooltipTrigger>
                   <div className="flex items-center text-blue-900/50">
-                    <LockClosedIcon className="h-5 w-5" />
+                    <Lock className="h-5 w-5" />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -86,7 +86,7 @@ const PerformanceChart = () => {
               <TooltipUI>
                 <TooltipTrigger>
                   <div className="flex items-center text-purple-900/50">
-                    <LockClosedIcon className="h-5 w-5" />
+                    <Lock className="h-5 w-5" />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
