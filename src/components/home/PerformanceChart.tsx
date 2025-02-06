@@ -36,7 +36,6 @@ const PerformanceChart = () => {
   const investmentDate = investmentData?.created_at ? new Date(investmentData.created_at) : new Date();
   const nextReleaseDate = addDays(investmentDate, 10);
   const daysUntilNextRelease = Math.max(0, differenceInDays(nextReleaseDate, new Date()));
-  const canWithdrawEarnings = daysUntilNextRelease === 0;
 
   return (
     <div className="space-y-6">
@@ -63,45 +62,42 @@ const PerformanceChart = () => {
                 R$ {investmentData?.available_balance?.toFixed(2) || '0.00'}
               </p>
             </div>
-            {!canWithdrawEarnings && (
-              <TooltipUI>
-                <TooltipTrigger>
-                  <div className="flex items-center text-purple-900/50">
-                    <Lock className="h-5 w-5" />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-sm">
-                    Próximo saque em {daysUntilNextRelease} {daysUntilNextRelease === 1 ? 'dia' : 'dias'}
-                  </p>
-                </TooltipContent>
-              </TooltipUI>
-            )}
           </div>
           <div className="mt-2 text-xs text-purple-900/60">
             Rendimentos disponíveis para saque
-            {!canWithdrawEarnings && (
-              <span className="block mt-1">
-                Próximo saque em {daysUntilNextRelease} {daysUntilNextRelease === 1 ? 'dia' : 'dias'}
-              </span>
-            )}
           </div>
         </Card>
         
         <Card className="p-6 bg-gradient-to-br from-green-50 to-green-100 border-none rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-sm font-medium text-green-900/70">Rendimentos</h3>
+              <h3 className="text-sm font-medium text-green-900/70">Rendimentos Acumulados</h3>
               <p className="text-2xl font-bold text-green-900 mt-2">
                 R$ {investmentData?.earnings_balance?.toFixed(2) || '0.00'}
               </p>
             </div>
-            <button className="text-green-900/50 hover:text-green-900">
-              <MoreHorizontal className="h-5 w-5" />
-            </button>
+            {daysUntilNextRelease > 0 && (
+              <TooltipUI>
+                <TooltipTrigger>
+                  <div className="flex items-center text-green-900/50">
+                    <Lock className="h-5 w-5" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-sm">
+                    Disponível para saque em {daysUntilNextRelease} {daysUntilNextRelease === 1 ? 'dia' : 'dias'}
+                  </p>
+                </TooltipContent>
+              </TooltipUI>
+            )}
           </div>
           <div className="mt-2 text-xs text-green-900/60">
             Lucro acumulado (5% ao dia)
+            {daysUntilNextRelease > 0 && (
+              <span className="block mt-1">
+                Disponível para saque em {daysUntilNextRelease} {daysUntilNextRelease === 1 ? 'dia' : 'dias'}
+              </span>
+            )}
           </div>
         </Card>
       </div>

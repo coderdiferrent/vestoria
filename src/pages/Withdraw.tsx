@@ -8,8 +8,6 @@ import { PixAccountForm } from "@/components/withdraw/PixAccountForm";
 import { SavedPixAccounts } from "@/components/withdraw/SavedPixAccounts";
 import { useInvestmentData } from "@/hooks/use-investment-data";
 import { supabase } from "@/integrations/supabase/client";
-import { differenceInDays, addDays } from "date-fns";
-import { Lock } from "lucide-react";
 
 const Withdraw = () => {
   const { toast } = useToast();
@@ -17,26 +15,11 @@ const Withdraw = () => {
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const { data: investmentData, refetch: refetchInvestmentData } = useInvestmentData();
 
-  // Calculate next earnings release
-  const investmentDate = investmentData?.created_at ? new Date(investmentData.created_at) : new Date();
-  const nextReleaseDate = addDays(investmentDate, 10);
-  const daysUntilNextRelease = Math.max(0, differenceInDays(nextReleaseDate, new Date()));
-  const canWithdrawEarnings = daysUntilNextRelease === 0;
-
   const handleWithdraw = async () => {
     if (!selectedAccountId || !withdrawalAmount) {
       toast({
         title: "Erro",
         description: "Por favor, selecione uma conta e insira um valor",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!canWithdrawEarnings) {
-      toast({
-        title: "Erro",
-        description: `Seus rendimentos estarão disponíveis em ${daysUntilNextRelease} ${daysUntilNextRelease === 1 ? 'dia' : 'dias'}`,
         variant: "destructive",
       });
       return;
@@ -121,14 +104,6 @@ const Withdraw = () => {
                   R$ {investmentData?.available_balance?.toFixed(2) || '0.00'}
                 </p>
               </div>
-              {!canWithdrawEarnings && (
-                <div className="flex items-center gap-2 bg-yellow-50 p-3 rounded-lg">
-                  <Lock className="h-5 w-5 text-yellow-600" />
-                  <span className="text-sm text-yellow-600">
-                    Próximo saque em {daysUntilNextRelease} {daysUntilNextRelease === 1 ? 'dia' : 'dias'}
-                  </span>
-                </div>
-              )}
             </div>
           </Card>
 
@@ -163,16 +138,15 @@ const Withdraw = () => {
                   onChange={(e) => setWithdrawalAmount(e.target.value)}
                   placeholder="Digite o valor do saque"
                   max={investmentData?.available_balance || 0}
-                  disabled={!canWithdrawEarnings}
                 />
               </div>
 
               <Button 
                 onClick={handleWithdraw}
                 className="w-full"
-                disabled={!selectedAccountId || !withdrawalAmount || !canWithdrawEarnings || parseFloat(withdrawalAmount) > (investmentData?.available_balance || 0)}
+                disabled={!selectedAccountId || !withdrawalAmount || parseFloat(withdrawalAmount) > (investmentData?.available_balance || 0)}
               >
-                {canWithdrawEarnings ? 'Sacar' : `Próximo saque em ${daysUntilNextRelease} ${daysUntilNextRelease === 1 ? 'dia' : 'dias'}`}
+                Sacar
               </Button>
             </div>
           </Card>
