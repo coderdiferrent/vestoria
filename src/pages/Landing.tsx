@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
@@ -10,10 +9,13 @@ import {
   UserPlus,
   Wallet,
   ListChecks,
-  Trophy
+  Trophy,
+  ArrowUpCircle,
+  ArrowDownCircle
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -94,7 +96,30 @@ const Landing = () => {
     { nome: "Patrícia Souza", valor: 55000 }
   ];
 
+  const generateTransactions = () => {
+    const names = [
+      "João Silva", "Maria Santos", "Pedro Oliveira", "Ana Costa", 
+      "Carlos Ferreira", "Mariana Lima", "Lucas Souza", "Julia Pereira",
+      "Gabriel Rodrigues", "Beatriz Almeida"
+    ];
+    
+    const deposits = Array.from({ length: 5 }, () => ({
+      name: names[Math.floor(Math.random() * names.length)],
+      amount: Math.floor(Math.random() * 5 + 1) * 1000,
+      date: new Date().toLocaleDateString('pt-BR')
+    }));
+
+    const withdrawals = Array.from({ length: 5 }, () => ({
+      name: names[Math.floor(Math.random() * names.length)],
+      amount: Math.floor(Math.random() * 3 + 1) * 1000,
+      date: new Date().toLocaleDateString('pt-BR')
+    }));
+
+    return { deposits, withdrawals };
+  };
+
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [transactions] = useState(generateTransactions());
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -218,6 +243,63 @@ const Landing = () => {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Latest Transactions Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold mb-4">Últimos Depósitos e Saques</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Sem taxas ocultas. Veja as últimas movimentações.
+            </p>
+          </div>
+
+          <Tabs defaultValue="deposits" className="max-w-4xl mx-auto">
+            <TabsList className="grid w-full grid-cols-2 mb-8">
+              <TabsTrigger value="deposits" className="flex items-center gap-2">
+                <ArrowUpCircle className="w-4 h-4 text-green-500" />
+                Últimos Depósitos
+              </TabsTrigger>
+              <TabsTrigger value="withdrawals" className="flex items-center gap-2">
+                <ArrowDownCircle className="w-4 h-4 text-red-500" />
+                Últimos Saques
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="deposits" className="space-y-4">
+              {transactions.deposits.map((transaction, index) => (
+                <Card key={index} className="p-4 hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-semibold">{transaction.name}</p>
+                      <p className="text-sm text-gray-500">{transaction.date}</p>
+                    </div>
+                    <p className="text-green-500 font-bold">
+                      + R$ {transaction.amount.toLocaleString('pt-BR')}
+                    </p>
+                  </div>
+                </Card>
+              ))}
+            </TabsContent>
+
+            <TabsContent value="withdrawals" className="space-y-4">
+              {transactions.withdrawals.map((transaction, index) => (
+                <Card key={index} className="p-4 hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-semibold">{transaction.name}</p>
+                      <p className="text-sm text-gray-500">{transaction.date}</p>
+                    </div>
+                    <p className="text-red-500 font-bold">
+                      - R$ {transaction.amount.toLocaleString('pt-BR')}
+                    </p>
+                  </div>
+                </Card>
+              ))}
+            </TabsContent>
+          </Tabs>
         </div>
       </section>
 
