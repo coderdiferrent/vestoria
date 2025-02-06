@@ -13,12 +13,13 @@ import {
   ArrowUpCircle,
   ArrowDownCircle
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Landing = () => {
   const navigate = useNavigate();
+  const sectionsRef = useRef<(HTMLElement | null)[]>([]);
 
   const benefits = [
     {
@@ -133,6 +134,25 @@ const Landing = () => {
   const [transactionIndex, setTransactionIndex] = useState(0);
 
   useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    document.querySelectorAll('.section-transition').forEach((section) => {
+      observer.observe(section);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) => 
         prevIndex + 4 >= investidoresDestaque.length ? 0 : prevIndex + 4
@@ -159,7 +179,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       {/* Header */}
-      <header className="container mx-auto px-4 py-6 flex justify-between items-center">
+      <header className="container mx-auto px-4 py-6 flex justify-between items-center animate-fade-in">
         <div className="flex items-center space-x-2">
           <img 
             src="/lovable-uploads/075d72e8-62cc-4d2f-8bcc-74c56c805993.png" 
@@ -170,7 +190,7 @@ const Landing = () => {
         <Button
           variant="outline"
           onClick={() => navigate("/login")}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 hover-scale"
         >
           <LogIn className="w-4 h-4" />
           Login
@@ -178,24 +198,25 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 text-center">
-        <h1 className="text-5xl font-bold text-gray-900 mb-6">
+      <section className="container mx-auto px-4 py-20 text-center section-transition">
+        <h1 className="text-5xl font-bold text-gray-900 mb-6 animate-typewriter">
           Duplique seus ganhos em 40 dias
         </h1>
-        <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
+        <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '0.5s' }}>
           Comece agora mesmo a investir na plataforma mais segura e rentável do mercado
         </p>
         <Button
           size="lg"
           onClick={() => navigate("/register")}
-          className="text-lg px-8 py-6"
+          className="text-lg px-8 py-6 hover-scale animate-fade-in"
+          style={{ animationDelay: '1s' }}
         >
           Comece agora mesmo
         </Button>
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white section-transition">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Como Funciona?</h2>
@@ -205,10 +226,11 @@ const Landing = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {steps.map((step) => (
+            {steps.map((step, index) => (
               <div 
                 key={step.number}
-                className="p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 relative group"
+                className="p-6 bg-white rounded-xl shadow-lg hover-scale transition-shadow duration-300 relative group animate-fade-in"
+                style={{ animationDelay: `${index * 0.2}s` }}
               >
                 <div className="absolute -top-4 -left-4 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg">
                   {step.number}
@@ -225,7 +247,7 @@ const Landing = () => {
       </section>
 
       {/* Top Investors Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50 section-transition">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Investidores de Destaque</h2>
@@ -238,7 +260,7 @@ const Landing = () => {
             {visibleInvestidores.map((investidor, index) => (
               <Card
                 key={index}
-                className="p-6 bg-white hover:shadow-lg transition-all duration-300 transform translate-x-0"
+                className="p-6 bg-white hover-scale transition-all duration-300 transform translate-x-0"
                 style={{
                   animation: `slideIn 1s ease-in-out`,
                   animationDelay: `${index * 0.2}s`
@@ -255,14 +277,15 @@ const Landing = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="bg-white py-20">
+      <section className="bg-white py-20 section-transition">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Nossos Benefícios</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {benefits.map((benefit) => (
+            {benefits.map((benefit, index) => (
               <div
                 key={benefit.title}
-                className="p-6 bg-white rounded-lg shadow-lg text-center hover:shadow-xl transition-shadow"
+                className="p-6 bg-white rounded-lg shadow-lg text-center hover-scale animate-fade-in"
+                style={{ animationDelay: `${index * 0.2}s` }}
               >
                 <benefit.icon className="w-12 h-12 mx-auto mb-4 text-primary" />
                 <h3 className="text-xl font-semibold mb-2">{benefit.title}</h3>
@@ -274,7 +297,7 @@ const Landing = () => {
       </section>
 
       {/* Latest Transactions Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white section-transition">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Últimos Depósitos e Saques</h2>
@@ -299,7 +322,7 @@ const Landing = () => {
               {visibleDeposits.map((transaction, index) => (
                 <Card 
                   key={index} 
-                  className="p-4 hover:shadow-md transition-all duration-500 ease-in-out transform translate-y-0"
+                  className="p-4 hover-scale transition-all duration-500 ease-in-out transform translate-y-0"
                   style={{
                     animation: `slideDown 1s ease-in-out`,
                     animationDelay: `${index * 0.2}s`
@@ -322,7 +345,7 @@ const Landing = () => {
               {visibleWithdrawals.map((transaction, index) => (
                 <Card 
                   key={index} 
-                  className="p-4 hover:shadow-md transition-all duration-500 ease-in-out transform translate-y-0"
+                  className="p-4 hover-scale transition-all duration-500 ease-in-out transform translate-y-0"
                   style={{
                     animation: `slideDown 1s ease-in-out`,
                     animationDelay: `${index * 0.2}s`
@@ -345,16 +368,17 @@ const Landing = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20">
+      <section className="py-20 section-transition">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">
             O que nossos usuários dizem
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {testimonials.map((testimonial) => (
+            {testimonials.map((testimonial, index) => (
               <div
                 key={testimonial.name}
-                className="p-6 bg-white rounded-lg shadow-lg"
+                className="p-6 bg-white rounded-lg shadow-lg hover-scale animate-fade-in"
+                style={{ animationDelay: `${index * 0.2}s` }}
               >
                 <div className="flex items-center gap-4 mb-4">
                   <img
