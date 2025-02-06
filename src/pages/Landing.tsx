@@ -87,31 +87,41 @@ const Landing = () => {
     { nome: "Maria Luzinara", valor: 10000 },
     { nome: "Pedro Rogério", valor: 15000 },
     { nome: "Araujo Silva", valor: 50000 },
-    { nome: "Ana Paula Santos", valor: 25000 },
+    { nome: "Ana Paula Santos", valor: 30000 },
     { nome: "Carlos Eduardo", valor: 30000 },
-    { nome: "Fernanda Lima", valor: 20000 },
-    { nome: "Ricardo Almeida", valor: 35000 },
-    { nome: "Juliana Costa", valor: 40000 },
-    { nome: "Lucas Mendes", valor: 45000 },
-    { nome: "Patrícia Souza", valor: 55000 }
+    { nome: "Fernanda Lima", valor: 15000 },
+    { nome: "Ricardo Almeida", valor: 30000 },
+    { nome: "Juliana Costa", valor: 50000 },
+    { nome: "Lucas Mendes", valor: 10000 },
+    { nome: "Patrícia Souza", valor: 15000 }
   ];
 
   const generateTransactions = () => {
-    const names = [
+    const depositNames = [
       "João Silva", "Maria Santos", "Pedro Oliveira", "Ana Costa", 
       "Carlos Ferreira", "Mariana Lima", "Lucas Souza", "Julia Pereira",
-      "Gabriel Rodrigues", "Beatriz Almeida"
+      "Gabriel Rodrigues", "Beatriz Almeida", "Rafael Costa", "Camila Santos",
+      "Fernando Silva", "Isabella Lima", "Thiago Oliveira"
+    ];
+
+    const withdrawalNames = [
+      "Roberto Alves", "Patricia Lima", "Diego Santos", "Carla Silva",
+      "Marcelo Costa", "Amanda Oliveira", "Bruno Ferreira", "Larissa Souza",
+      "Ricardo Pereira", "Vanessa Lima", "Paulo Santos", "Bianca Silva",
+      "Gustavo Costa", "Carolina Lima", "Leonardo Oliveira"
     ];
     
-    const deposits = Array.from({ length: 5 }, () => ({
-      name: names[Math.floor(Math.random() * names.length)],
-      amount: Math.floor(Math.random() * 5 + 1) * 1000,
+    const possibleAmounts = [500, 1000, 1500, 3000, 5000, 10000, 15000, 20000];
+    
+    const deposits = Array.from({ length: 15 }, (_, index) => ({
+      name: depositNames[index],
+      amount: possibleAmounts[Math.floor(Math.random() * possibleAmounts.length)],
       date: new Date().toLocaleDateString('pt-BR')
     }));
 
-    const withdrawals = Array.from({ length: 5 }, () => ({
-      name: names[Math.floor(Math.random() * names.length)],
-      amount: Math.floor(Math.random() * 3 + 1) * 1000,
+    const withdrawals = Array.from({ length: 15 }, (_, index) => ({
+      name: withdrawalNames[index],
+      amount: possibleAmounts[Math.floor(Math.random() * possibleAmounts.length)],
       date: new Date().toLocaleDateString('pt-BR')
     }));
 
@@ -120,6 +130,7 @@ const Landing = () => {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [transactions] = useState(generateTransactions());
+  const [transactionIndex, setTransactionIndex] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -131,7 +142,19 @@ const Landing = () => {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTransactionIndex((prevIndex) => 
+        prevIndex + 1 >= 15 ? 0 : prevIndex + 1
+      );
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   const visibleInvestidores = investidoresDestaque.slice(currentIndex, currentIndex + 4);
+  const visibleDeposits = [...transactions.deposits.slice(transactionIndex), ...transactions.deposits.slice(0, transactionIndex)].slice(0, 5);
+  const visibleWithdrawals = [...transactions.withdrawals.slice(transactionIndex), ...transactions.withdrawals.slice(0, transactionIndex)].slice(0, 5);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -211,11 +234,15 @@ const Landing = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 transition-all duration-500">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 transition-all duration-1000 ease-in-out">
             {visibleInvestidores.map((investidor, index) => (
               <Card
                 key={index}
-                className="p-6 bg-white hover:shadow-lg transition-all duration-300"
+                className="p-6 bg-white hover:shadow-lg transition-all duration-300 transform translate-x-0"
+                style={{
+                  animation: `slideIn 1s ease-in-out`,
+                  animationDelay: `${index * 0.2}s`
+                }}
               >
                 <h3 className="font-semibold text-lg mb-2">{investidor.nome}</h3>
                 <p className="text-primary font-bold">
@@ -259,24 +286,31 @@ const Landing = () => {
           <Tabs defaultValue="deposits" className="max-w-4xl mx-auto">
             <TabsList className="grid w-full grid-cols-2 mb-8">
               <TabsTrigger value="deposits" className="flex items-center gap-2">
-                <ArrowUpCircle className="w-4 h-4 text-green-500" />
+                <ArrowUpCircle className="w-4 h-4 text-blue-500" />
                 Últimos Depósitos
               </TabsTrigger>
               <TabsTrigger value="withdrawals" className="flex items-center gap-2">
-                <ArrowDownCircle className="w-4 h-4 text-red-500" />
+                <ArrowDownCircle className="w-4 h-4 text-green-500" />
                 Últimos Saques
               </TabsTrigger>
             </TabsList>
             
             <TabsContent value="deposits" className="space-y-4">
-              {transactions.deposits.map((transaction, index) => (
-                <Card key={index} className="p-4 hover:shadow-md transition-shadow">
+              {visibleDeposits.map((transaction, index) => (
+                <Card 
+                  key={index} 
+                  className="p-4 hover:shadow-md transition-all duration-500 ease-in-out transform translate-y-0"
+                  style={{
+                    animation: `slideDown 1s ease-in-out`,
+                    animationDelay: `${index * 0.2}s`
+                  }}
+                >
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="font-semibold">{transaction.name}</p>
                       <p className="text-sm text-gray-500">{transaction.date}</p>
                     </div>
-                    <p className="text-green-500 font-bold">
+                    <p className="text-blue-500 font-bold">
                       + R$ {transaction.amount.toLocaleString('pt-BR')}
                     </p>
                   </div>
@@ -285,14 +319,21 @@ const Landing = () => {
             </TabsContent>
 
             <TabsContent value="withdrawals" className="space-y-4">
-              {transactions.withdrawals.map((transaction, index) => (
-                <Card key={index} className="p-4 hover:shadow-md transition-shadow">
+              {visibleWithdrawals.map((transaction, index) => (
+                <Card 
+                  key={index} 
+                  className="p-4 hover:shadow-md transition-all duration-500 ease-in-out transform translate-y-0"
+                  style={{
+                    animation: `slideDown 1s ease-in-out`,
+                    animationDelay: `${index * 0.2}s`
+                  }}
+                >
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="font-semibold">{transaction.name}</p>
                       <p className="text-sm text-gray-500">{transaction.date}</p>
                     </div>
-                    <p className="text-red-500 font-bold">
+                    <p className="text-green-500 font-bold">
                       - R$ {transaction.amount.toLocaleString('pt-BR')}
                     </p>
                   </div>
