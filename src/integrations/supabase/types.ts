@@ -9,6 +9,117 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      asset_positions: {
+        Row: {
+          asset_id: string
+          average_price: number
+          created_at: string
+          id: string
+          portfolio_id: string
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          asset_id: string
+          average_price: number
+          created_at?: string
+          id?: string
+          portfolio_id: string
+          quantity: number
+          updated_at?: string
+        }
+        Update: {
+          asset_id?: string
+          average_price?: number
+          created_at?: string
+          id?: string
+          portfolio_id?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asset_positions_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asset_positions_portfolio_id_fkey"
+            columns: ["portfolio_id"]
+            isOneToOne: false
+            referencedRelation: "investment_portfolios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assets: {
+        Row: {
+          created_at: string
+          current_price: number
+          description: string | null
+          id: string
+          name: string
+          symbol: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_price?: number
+          description?: string | null
+          id?: string
+          name: string
+          symbol: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_price?: number
+          description?: string | null
+          id?: string
+          name?: string
+          symbol?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      investment_portfolios: {
+        Row: {
+          created_at: string
+          current_value: number
+          description: string | null
+          id: string
+          name: string
+          total_invested: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_value?: number
+          description?: string | null
+          id?: string
+          name: string
+          total_invested?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_value?: number
+          description?: string | null
+          id?: string
+          name?: string
+          total_invested?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       investments: {
         Row: {
           available_balance: number
@@ -71,36 +182,57 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
           birth_date: string | null
+          city: string | null
           cpf: string | null
           created_at: string
+          document_number: string | null
+          document_type: string | null
           first_name: string | null
           gender: string | null
           id: string
           last_name: string | null
           phone: string | null
+          postal_code: string | null
+          risk_profile: string | null
+          state: string | null
           updated_at: string
         }
         Insert: {
+          address?: string | null
           birth_date?: string | null
+          city?: string | null
           cpf?: string | null
           created_at?: string
+          document_number?: string | null
+          document_type?: string | null
           first_name?: string | null
           gender?: string | null
           id: string
           last_name?: string | null
           phone?: string | null
+          postal_code?: string | null
+          risk_profile?: string | null
+          state?: string | null
           updated_at?: string
         }
         Update: {
+          address?: string | null
           birth_date?: string | null
+          city?: string | null
           cpf?: string | null
           created_at?: string
+          document_number?: string | null
+          document_type?: string | null
           first_name?: string | null
           gender?: string | null
           id?: string
           last_name?: string | null
           phone?: string | null
+          postal_code?: string | null
+          risk_profile?: string | null
+          state?: string | null
           updated_at?: string
         }
         Relationships: []
