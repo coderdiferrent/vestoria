@@ -67,7 +67,7 @@ const Landing = () => {
       number: "04",
       icon: Trophy,
       title: "Aproveite os Super Resultados",
-      description: "Quando seu pedido for concluído, você poderá desfrutar de resultados incríveis e impulsionar seu negócio."
+      description: "Quando seu investimento for realizado, somente aproveitar os rendimentos e acumular o patrimônio."
     }
   ];
 
@@ -85,16 +85,16 @@ const Landing = () => {
   ];
 
   const investidoresDestaque = [
-    { nome: "Maria Luzinara", valor: 10000 },
-    { nome: "Pedro Rogério", valor: 15000 },
-    { nome: "Araujo Silva", valor: 50000 },
-    { nome: "Ana Paula Santos", valor: 30000 },
-    { nome: "Carlos Eduardo", valor: 30000 },
-    { nome: "Fernanda Lima", valor: 15000 },
-    { nome: "Ricardo Almeida", valor: 30000 },
-    { nome: "Juliana Costa", valor: 50000 },
-    { nome: "Lucas Mendes", valor: 10000 },
-    { nome: "Patrícia Souza", valor: 15000 }
+    { nome: "Maria Luzinara", valor: 10000, tag: "INVESTOR" },
+    { nome: "Pedro Rogério", valor: 15000, tag: "INVESTOR" },
+    { nome: "Araujo Silva", valor: 50000, tag: "INVESTOR" },
+    { nome: "Ana Paula Santos", valor: 30000, tag: "INVESTOR" },
+    { nome: "Carlos Eduardo", valor: 30000, tag: "INVESTOR" },
+    { nome: "Fernanda Lima", valor: 15000, tag: "INVESTOR" },
+    { nome: "Ricardo Almeida", valor: 30000, tag: "INVESTOR" },
+    { nome: "Juliana Costa", valor: 50000, tag: "INVESTOR" },
+    { nome: "Lucas Mendes", valor: 10000, tag: "INVESTOR" },
+    { nome: "Patrícia Souza", valor: 15000, tag: "INVESTOR" }
   ];
 
   const generateTransactions = () => {
@@ -155,17 +155,7 @@ const Landing = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) => 
-        prevIndex + 4 >= investidoresDestaque.length ? 0 : prevIndex + 4
-      );
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTransactionIndex((prevIndex) => 
-        prevIndex + 1 >= 15 ? 0 : prevIndex + 1
+        prevIndex + 1 >= investidoresDestaque.length ? 0 : prevIndex + 1
       );
     }, 3000);
 
@@ -178,7 +168,6 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      {/* Header */}
       <header className="container mx-auto px-4 py-6 flex justify-between items-center animate-fade-in">
         <div className="flex items-center space-x-2">
           <img 
@@ -197,7 +186,6 @@ const Landing = () => {
         </Button>
       </header>
 
-      {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 text-center section-transition">
         <h1 className="text-5xl font-bold text-gray-900 mb-6 animate-typewriter">
           Duplique seus ganhos em 40 dias
@@ -215,7 +203,6 @@ const Landing = () => {
         </Button>
       </section>
 
-      {/* How It Works Section */}
       <section className="py-20 bg-white section-transition">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -246,37 +233,43 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Top Investors Section */}
       <section className="py-20 bg-gray-50 section-transition">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Investidores de Destaque</h2>
+            <span className="text-yellow-500 font-semibold mb-2 inline-block">INVESTOR</span>
+            <h2 className="text-4xl font-bold mb-4 text-[#1A1F2C]">World Wide Top Investor</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Ajudamos pessoas a mudarem suas vidas através de nossas soluções em investimentos.
+              Conheça nossos principais investidores e seus resultados extraordinários
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 transition-all duration-1000 ease-in-out">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 overflow-hidden">
             {visibleInvestidores.map((investidor, index) => (
               <Card
                 key={index}
-                className="p-6 bg-white hover-scale transition-all duration-300 transform translate-x-0"
+                className="bg-white shadow-lg overflow-hidden transform transition-all duration-500"
                 style={{
-                  animation: `slideIn 1s ease-in-out`,
-                  animationDelay: `${index * 0.2}s`
+                  animation: `slideAndRotate 3s ease-in-out infinite ${index * 0.2}s`
                 }}
               >
-                <h3 className="font-semibold text-lg mb-2">{investidor.nome}</h3>
-                <p className="text-primary font-bold">
-                  R$ {investidor.valor.toLocaleString('pt-BR')}
-                </p>
+                <div className="relative">
+                  <div className="bg-[#FF5733] w-12 h-12 transform rotate-45 absolute -left-6 -top-6"></div>
+                  <div className="p-6">
+                    <span className="text-sm font-semibold text-yellow-500 mb-2 block">
+                      {investidor.tag}
+                    </span>
+                    <h3 className="text-xl font-bold mb-3">{investidor.nome}</h3>
+                    <p className="text-primary text-lg font-bold">
+                      Investiu R$ {investidor.valor.toLocaleString('pt-BR')}
+                    </p>
+                  </div>
+                </div>
               </Card>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Benefits Section */}
       <section className="bg-white py-20 section-transition">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Nossos Benefícios</h2>
@@ -296,7 +289,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Latest Transactions Section */}
       <section className="py-20 bg-white section-transition">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -367,7 +359,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
       <section className="py-20 section-transition">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">
@@ -397,7 +388,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="bg-white border-t py-12">
         <div className="container mx-auto px-4">
           <div className="text-center text-gray-600">
