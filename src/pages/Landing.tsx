@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
@@ -85,16 +86,16 @@ const Landing = () => {
   ];
 
   const investidoresDestaque = [
-    { nome: "Maria Luzinara", valor: 10000, tag: "INVESTOR" },
-    { nome: "Pedro Rogério", valor: 15000, tag: "INVESTOR" },
-    { nome: "Araujo Silva", valor: 50000, tag: "INVESTOR" },
-    { nome: "Ana Paula Santos", valor: 30000, tag: "INVESTOR" },
-    { nome: "Carlos Eduardo", valor: 30000, tag: "INVESTOR" },
-    { nome: "Fernanda Lima", valor: 15000, tag: "INVESTOR" },
-    { nome: "Ricardo Almeida", valor: 30000, tag: "INVESTOR" },
-    { nome: "Juliana Costa", valor: 50000, tag: "INVESTOR" },
-    { nome: "Lucas Mendes", valor: 10000, tag: "INVESTOR" },
-    { nome: "Patrícia Souza", valor: 15000, tag: "INVESTOR" }
+    { nome: "Maria Luzinara", valor: 10000, tag: "INVESTIDOR" },
+    { nome: "Pedro Rogério", valor: 15000, tag: "INVESTIDOR" },
+    { nome: "Araujo Silva", valor: 50000, tag: "INVESTIDOR" },
+    { nome: "Ana Paula Santos", valor: 30000, tag: "INVESTIDOR" },
+    { nome: "Carlos Eduardo", valor: 30000, tag: "INVESTIDOR" },
+    { nome: "Fernanda Lima", valor: 15000, tag: "INVESTIDOR" },
+    { nome: "Ricardo Almeida", valor: 30000, tag: "INVESTIDOR" },
+    { nome: "Juliana Costa", valor: 50000, tag: "INVESTIDOR" },
+    { nome: "Lucas Mendes", valor: 10000, tag: "INVESTIDOR" },
+    { nome: "Patrícia Souza", valor: 15000, tag: "INVESTIDOR" }
   ];
 
   const generateTransactions = () => {
@@ -112,17 +113,17 @@ const Landing = () => {
       "Gustavo Costa", "Carolina Lima", "Leonardo Oliveira"
     ];
     
-    const possibleAmounts = [500, 1000, 1500, 3000, 5000, 10000, 15000, 20000];
+    const possibleAmounts = [50, 100, 200, 500, 1000, 10000];
     
     const deposits = Array.from({ length: 15 }, (_, index) => ({
       name: depositNames[index],
-      amount: possibleAmounts[Math.floor(Math.random() * possibleAmounts.length)],
+      amount: index === 0 ? 10000 : possibleAmounts[Math.floor(Math.random() * (possibleAmounts.length - 1))],
       date: new Date().toLocaleDateString('pt-BR')
     }));
 
     const withdrawals = Array.from({ length: 15 }, (_, index) => ({
       name: withdrawalNames[index],
-      amount: possibleAmounts[Math.floor(Math.random() * possibleAmounts.length)],
+      amount: index === 0 ? 10000 : possibleAmounts[Math.floor(Math.random() * (possibleAmounts.length - 1))],
       date: new Date().toLocaleDateString('pt-BR')
     }));
 
@@ -157,7 +158,7 @@ const Landing = () => {
       setCurrentIndex((prevIndex) => 
         prevIndex + 1 >= investidoresDestaque.length ? 0 : prevIndex + 1
       );
-    }, 3000);
+    }, 5000); // Increased interval to 5 seconds for slower animation
 
     return () => clearInterval(timer);
   }, []);
@@ -236,8 +237,8 @@ const Landing = () => {
       <section className="py-20 bg-gray-50 section-transition">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <span className="text-yellow-500 font-semibold mb-2 inline-block">INVESTOR</span>
-            <h2 className="text-4xl font-bold mb-4 text-[#1A1F2C]">World Wide Top Investor</h2>
+            <span className="text-yellow-500 font-semibold mb-2 inline-block">INVESTIDOR</span>
+            <h2 className="text-4xl font-bold mb-4 text-[#1A1F2C]">Maiores Investidores</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
               Conheça nossos principais investidores e seus resultados extraordinários
             </p>
@@ -249,7 +250,7 @@ const Landing = () => {
                 key={index}
                 className="bg-white shadow-lg overflow-hidden transform transition-all duration-500"
                 style={{
-                  animation: `slideAndRotate 3s ease-in-out infinite ${index * 0.2}s`
+                  animation: `slideAndRotate 5s ease-in-out infinite ${index * 0.2}s`
                 }}
               >
                 <div className="relative">
@@ -400,3 +401,4 @@ const Landing = () => {
 };
 
 export default Landing;
+
