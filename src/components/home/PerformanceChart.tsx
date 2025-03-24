@@ -23,22 +23,20 @@ const PerformanceChart = () => {
     // Calculate the number of days since investment was created
     const daysSinceCreation = Math.max(0, differenceInDays(today, createdDate));
     
-    // Generate data for each day since creation (or up to 30 days max)
-    const daysToShow = Math.min(daysSinceCreation, 30);
-    
-    for (let i = daysToShow; i >= 0; i--) {
-      const date = subDays(today, i);
-      const daysFromInvestment = daysSinceCreation - i;
+    // Generate data only for the days that have already passed
+    for (let i = 0; i <= daysSinceCreation; i++) {
+      const date = addDays(createdDate, i);
       const baseAmount = investmentData?.total_invested || 0;
       
-      // Only calculate earnings based on actual days passed
-      const earnings = baseAmount * Math.pow(1 + dailyRate, daysFromInvestment) - baseAmount;
+      // Calculate earnings based on days passed (not projecting into the future)
+      const earnings = baseAmount * Math.pow(1 + dailyRate, i) - baseAmount;
 
       data.push({
         date: format(date, 'dd/MM'),
         totalValue: Number((baseAmount + earnings).toFixed(2)),
       });
     }
+    
     return data;
   };
 
@@ -50,7 +48,7 @@ const PerformanceChart = () => {
   const daysUntilNextRelease = Math.max(0, differenceInDays(nextReleaseDate, new Date()));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-full overflow-hidden">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 border-none rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
           <div className="flex justify-between items-start">
@@ -114,7 +112,7 @@ const PerformanceChart = () => {
         </Card>
       </div>
 
-      <Card className="p-6 bg-white rounded-2xl border-none shadow-lg">
+      <Card className="p-6 bg-white rounded-2xl border-none shadow-lg overflow-hidden">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold text-gray-900">Evolução do Investimento</h3>
           <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
@@ -130,49 +128,51 @@ const PerformanceChart = () => {
               }
             }}
           >
-            <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-              <XAxis 
-                dataKey="date" 
-                stroke="#6B7280"
-                tick={{ fill: '#6B7280', fontSize: 12 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis 
-                stroke="#6B7280"
-                tick={{ fill: '#6B7280', fontSize: 12 }}
-                tickFormatter={(value) => `R$ ${value}`}
-                axisLine={false}
-                tickLine={false}
-              />
-              <Tooltip 
-                content={<ChartTooltipContent />}
-                formatter={(value: number) => [`R$ ${value.toFixed(2)}`, '']}
-                labelFormatter={(label) => `Data: ${label}`}
-              />
-              <Legend verticalAlign="top" height={36} />
-              <Area 
-                type="monotone" 
-                dataKey="totalValue" 
-                name="Valor Total"
-                stroke="#10B981" 
-                fill="url(#colorTotal)"
-                strokeWidth={3}
-                dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, strokeWidth: 0 }}
-              />
-            </AreaChart>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="#6B7280"
+                  tick={{ fill: '#6B7280', fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis 
+                  stroke="#6B7280"
+                  tick={{ fill: '#6B7280', fontSize: 12 }}
+                  tickFormatter={(value) => `R$ ${value}`}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip 
+                  content={<ChartTooltipContent />}
+                  formatter={(value: number) => [`R$ ${value.toFixed(2)}`, '']}
+                  labelFormatter={(label) => `Data: ${label}`}
+                />
+                <Legend verticalAlign="top" height={36} />
+                <Area 
+                  type="monotone" 
+                  dataKey="totalValue" 
+                  name="Valor Total"
+                  stroke="#10B981" 
+                  fill="url(#colorTotal)"
+                  strokeWidth={3}
+                  dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, strokeWidth: 0 }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
           </ChartContainer>
         </div>
         <div className="mt-4 text-xs text-gray-500 text-center">
-          Dados históricos do seu investimento com rendimento de 5% ao dia
+          Histórico de crescimento do seu investimento com rendimento de 5% ao dia
         </div>
       </Card>
     </div>
