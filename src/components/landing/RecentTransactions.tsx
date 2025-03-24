@@ -10,6 +10,7 @@ import {
   CarouselPrevious,
   CarouselNext,
 } from "@/components/ui/carousel";
+import { cn } from "@/lib/utils";
 
 const generateTransactions = () => {
   const depositNames = [
@@ -45,6 +46,7 @@ const generateTransactions = () => {
 
 const RecentTransactions = () => {
   const [transactions] = useState(generateTransactions());
+  const [activeTab, setActiveTab] = useState("deposits");
 
   return (
     <section className="py-20 bg-white section-transition">
@@ -56,14 +58,25 @@ const RecentTransactions = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="deposits" className="max-w-4xl mx-auto">
+        <Tabs 
+          defaultValue="deposits" 
+          className="max-w-4xl mx-auto"
+          value={activeTab}
+          onValueChange={setActiveTab}
+        >
           <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="deposits" className="flex items-center gap-2">
-              <ArrowUpCircle className="w-4 h-4 text-blue-500" />
+              <ArrowUpCircle className={cn(
+                "w-4 h-4", 
+                activeTab === "deposits" ? "text-blue-500" : "text-gray-500"
+              )} />
               Últimos Depósitos
             </TabsTrigger>
             <TabsTrigger value="withdrawals" className="flex items-center gap-2">
-              <ArrowDownCircle className="w-4 h-4 text-green-500" />
+              <ArrowDownCircle className={cn(
+                "w-4 h-4", 
+                activeTab === "withdrawals" ? "text-green-500" : "text-gray-500"
+              )} />
               Últimos Saques
             </TabsTrigger>
           </TabsList>
@@ -72,13 +85,15 @@ const RecentTransactions = () => {
             <Carousel
               opts={{
                 align: "start",
-                loop: true
+                loop: true,
+                dragFree: true
               }}
+              className="w-full"
             >
-              <CarouselContent>
+              <CarouselContent className="-ml-2 md:-ml-4">
                 {transactions.deposits.map((transaction, index) => (
-                  <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                    <Card className="p-4 hover:shadow-md transition-all duration-300">
+                  <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                    <Card className="p-4 hover:shadow-md transition-all duration-300 h-full">
                       <div className="flex justify-between items-center">
                         <div>
                           <p className="font-semibold">{transaction.name}</p>
@@ -92,7 +107,7 @@ const RecentTransactions = () => {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <div className="flex justify-center mt-4">
+              <div className="flex justify-center mt-6">
                 <CarouselPrevious className="relative static translate-y-0 left-0 mr-2" />
                 <CarouselNext className="relative static translate-y-0 right-0" />
               </div>
@@ -103,13 +118,15 @@ const RecentTransactions = () => {
             <Carousel
               opts={{
                 align: "start",
-                loop: true
+                loop: true,
+                dragFree: true
               }}
+              className="w-full"
             >
-              <CarouselContent>
+              <CarouselContent className="-ml-2 md:-ml-4">
                 {transactions.withdrawals.map((transaction, index) => (
-                  <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                    <Card className="p-4 hover:shadow-md transition-all duration-300">
+                  <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                    <Card className="p-4 hover:shadow-md transition-all duration-300 h-full">
                       <div className="flex justify-between items-center">
                         <div>
                           <p className="font-semibold">{transaction.name}</p>
@@ -123,7 +140,7 @@ const RecentTransactions = () => {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <div className="flex justify-center mt-4">
+              <div className="flex justify-center mt-6">
                 <CarouselPrevious className="relative static translate-y-0 left-0 mr-2" />
                 <CarouselNext className="relative static translate-y-0 right-0" />
               </div>

@@ -1,29 +1,41 @@
+
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { Card } from '@/components/ui/card';
 import { useInvestmentData } from '@/hooks/use-investment-data';
 import { format, subDays, addDays, differenceInDays } from 'date-fns';
-import { MoreHorizontal, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { Tooltip as TooltipUI } from '@/components/ui/tooltip';
 import { TooltipTrigger } from '@radix-ui/react-tooltip';
 import { TooltipContent } from '@radix-ui/react-tooltip';
+import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 
 const PerformanceChart = () => {
   const { data: investmentData } = useInvestmentData();
 
   const generateChartData = () => {
+    if (!investmentData?.created_at) return [];
+    
     const data = [];
     const dailyRate = 0.05; // 5% daily return
-
-    for (let i = 6; i >= 0; i--) {
-      const date = subDays(new Date(), i);
-      const daysFromInvestment = 6 - i;
+    const createdDate = new Date(investmentData.created_at);
+    const today = new Date();
+    
+    // Calculate the number of days since investment was created
+    const daysSinceCreation = Math.max(0, differenceInDays(today, createdDate));
+    
+    // Generate data for each day since creation (or up to 30 days max)
+    const daysToShow = Math.min(daysSinceCreation, 30);
+    
+    for (let i = daysToShow; i >= 0; i--) {
+      const date = subDays(today, i);
+      const daysFromInvestment = daysSinceCreation - i;
       const baseAmount = investmentData?.total_invested || 0;
       
+      // Only calculate earnings based on actual days passed
       const earnings = baseAmount * Math.pow(1 + dailyRate, daysFromInvestment) - baseAmount;
 
       data.push({
         date: format(date, 'dd/MM'),
-        earnings: Number(earnings.toFixed(2)),
         totalValue: Number((baseAmount + earnings).toFixed(2)),
       });
     }
@@ -106,17 +118,20 @@ const PerformanceChart = () => {
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold text-gray-900">Evolução do Investimento</h3>
           <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-            Últimos 7 dias
+            Histórico Real
           </div>
         </div>
         <div className="h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+          <ChartContainer
+            config={{
+              totalValue: { 
+                label: "Valor Total",
+                theme: { light: "#10B981", dark: "#34D399" }
+              }
+            }}
+          >
             <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
               <defs>
-                <linearGradient id="colorEarnings" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
-                </linearGradient>
                 <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
                   <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
@@ -138,46 +153,26 @@ const PerformanceChart = () => {
                 tickLine={false}
               />
               <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'white',
-                  border: 'none',
-                  borderRadius: '0.75rem',
-                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)'
-                }}
+                content={<ChartTooltipContent />}
                 formatter={(value: number) => [`R$ ${value.toFixed(2)}`, '']}
                 labelFormatter={(label) => `Data: ${label}`}
               />
-              <Legend 
-                verticalAlign="top" 
-                height={36}
-                formatter={(value) => {
-                  const labels = {
-                    earnings: 'Rendimentos',
-                    totalValue: 'Valor Total'
-                  };
-                  return labels[value as keyof typeof labels];
-                }}
-              />
-              <Area 
-                type="monotone" 
-                dataKey="earnings" 
-                stroke="#4F46E5" 
-                fill="url(#colorEarnings)"
-                strokeWidth={2}
-                dot={{ fill: '#4F46E5', strokeWidth: 2 }}
-                activeDot={{ r: 6, strokeWidth: 0 }}
-              />
+              <Legend verticalAlign="top" height={36} />
               <Area 
                 type="monotone" 
                 dataKey="totalValue" 
+                name="Valor Total"
                 stroke="#10B981" 
                 fill="url(#colorTotal)"
-                strokeWidth={2}
-                dot={{ fill: '#10B981', strokeWidth: 2 }}
+                strokeWidth={3}
+                dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
                 activeDot={{ r: 6, strokeWidth: 0 }}
               />
             </AreaChart>
-          </ResponsiveContainer>
+          </ChartContainer>
+        </div>
+        <div className="mt-4 text-xs text-gray-500 text-center">
+          Dados históricos do seu investimento com rendimento de 5% ao dia
         </div>
       </Card>
     </div>
