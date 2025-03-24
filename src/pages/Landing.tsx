@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
@@ -12,11 +11,20 @@ import {
   ListChecks,
   Trophy,
   ArrowUpCircle,
-  ArrowDownCircle
+  ArrowDownCircle,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -130,9 +138,7 @@ const Landing = () => {
     return { deposits, withdrawals };
   };
 
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [transactions] = useState(generateTransactions());
-  const [transactionIndex, setTransactionIndex] = useState(0);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -152,20 +158,6 @@ const Landing = () => {
 
     return () => observer.disconnect();
   }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex((prevIndex) => 
-        prevIndex + 1 >= investidoresDestaque.length ? 0 : prevIndex + 1
-      );
-    }, 5000); // Increased interval to 5 seconds for slower animation
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const visibleInvestidores = investidoresDestaque.slice(currentIndex, currentIndex + 4);
-  const visibleDeposits = [...transactions.deposits.slice(transactionIndex), ...transactions.deposits.slice(0, transactionIndex)].slice(0, 5);
-  const visibleWithdrawals = [...transactions.withdrawals.slice(transactionIndex), ...transactions.withdrawals.slice(0, transactionIndex)].slice(0, 5);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -234,6 +226,7 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Maiores Investidores - Seção com Carrossel */}
       <section className="py-20 bg-gray-50 section-transition">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
@@ -244,30 +237,36 @@ const Landing = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 overflow-hidden">
-            {visibleInvestidores.map((investidor, index) => (
-              <Card
-                key={index}
-                className="bg-white shadow-lg overflow-hidden transform transition-all duration-500"
-                style={{
-                  animation: `slideAndRotate 5s ease-in-out infinite ${index * 0.2}s`
-                }}
-              >
-                <div className="relative">
-                  <div className="bg-[#FF5733] w-12 h-12 transform rotate-45 absolute -left-6 -top-6"></div>
-                  <div className="p-6">
-                    <span className="text-sm font-semibold text-yellow-500 mb-2 block">
-                      {investidor.tag}
-                    </span>
-                    <h3 className="text-xl font-bold mb-3">{investidor.nome}</h3>
-                    <p className="text-primary text-lg font-bold">
-                      Investiu R$ {investidor.valor.toLocaleString('pt-BR')}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+          <Carousel 
+            className="max-w-5xl mx-auto"
+            opts={{
+              align: "start",
+              loop: true
+            }}
+          >
+            <CarouselContent className="-ml-4">
+              {investidoresDestaque.map((investidor, index) => (
+                <CarouselItem key={index} className="pl-4 md:basis-1/4">
+                  <Card className="bg-white shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300">
+                    <div className="relative">
+                      <div className="bg-[#FF5733] w-12 h-12 transform rotate-45 absolute -left-6 -top-6"></div>
+                      <div className="p-6">
+                        <span className="text-sm font-semibold text-yellow-500 mb-2 block">
+                          {investidor.tag}
+                        </span>
+                        <h3 className="text-xl font-bold mb-3">{investidor.nome}</h3>
+                        <p className="text-primary text-lg font-bold">
+                          Investiu R$ {investidor.valor.toLocaleString('pt-BR')}
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-0 bg-white/80 hover:bg-white" />
+            <CarouselNext className="right-0 bg-white/80 hover:bg-white" />
+          </Carousel>
         </div>
       </section>
 
@@ -311,50 +310,66 @@ const Landing = () => {
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="deposits" className="space-y-4">
-              {visibleDeposits.map((transaction, index) => (
-                <Card 
-                  key={index} 
-                  className="p-4 hover-scale transition-all duration-500 ease-in-out transform translate-y-0"
-                  style={{
-                    animation: `slideDown 1s ease-in-out`,
-                    animationDelay: `${index * 0.2}s`
-                  }}
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-semibold">{transaction.name}</p>
-                      <p className="text-sm text-gray-500">{transaction.date}</p>
-                    </div>
-                    <p className="text-blue-500 font-bold">
-                      + R$ {transaction.amount.toLocaleString('pt-BR')}
-                    </p>
-                  </div>
-                </Card>
-              ))}
+            <TabsContent value="deposits">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true
+                }}
+              >
+                <CarouselContent>
+                  {transactions.deposits.map((transaction, index) => (
+                    <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                      <Card className="p-4 hover:shadow-md transition-all duration-300">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-semibold">{transaction.name}</p>
+                            <p className="text-sm text-gray-500">{transaction.date}</p>
+                          </div>
+                          <p className="text-blue-500 font-bold">
+                            + R$ {transaction.amount.toLocaleString('pt-BR')}
+                          </p>
+                        </div>
+                      </Card>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <div className="flex justify-center mt-4">
+                  <CarouselPrevious className="relative static translate-y-0 left-0 mr-2" />
+                  <CarouselNext className="relative static translate-y-0 right-0" />
+                </div>
+              </Carousel>
             </TabsContent>
 
-            <TabsContent value="withdrawals" className="space-y-4">
-              {visibleWithdrawals.map((transaction, index) => (
-                <Card 
-                  key={index} 
-                  className="p-4 hover-scale transition-all duration-500 ease-in-out transform translate-y-0"
-                  style={{
-                    animation: `slideDown 1s ease-in-out`,
-                    animationDelay: `${index * 0.2}s`
-                  }}
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-semibold">{transaction.name}</p>
-                      <p className="text-sm text-gray-500">{transaction.date}</p>
-                    </div>
-                    <p className="text-green-500 font-bold">
-                      - R$ {transaction.amount.toLocaleString('pt-BR')}
-                    </p>
-                  </div>
-                </Card>
-              ))}
+            <TabsContent value="withdrawals">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true
+                }}
+              >
+                <CarouselContent>
+                  {transactions.withdrawals.map((transaction, index) => (
+                    <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                      <Card className="p-4 hover:shadow-md transition-all duration-300">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-semibold">{transaction.name}</p>
+                            <p className="text-sm text-gray-500">{transaction.date}</p>
+                          </div>
+                          <p className="text-green-500 font-bold">
+                            - R$ {transaction.amount.toLocaleString('pt-BR')}
+                          </p>
+                        </div>
+                      </Card>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <div className="flex justify-center mt-4">
+                  <CarouselPrevious className="relative static translate-y-0 left-0 mr-2" />
+                  <CarouselNext className="relative static translate-y-0 right-0" />
+                </div>
+              </Carousel>
             </TabsContent>
           </Tabs>
         </div>
@@ -396,9 +411,30 @@ const Landing = () => {
           </div>
         </div>
       </footer>
+
+      <style jsx global>{`
+        @keyframes slideAndRotate {
+          0% {
+            transform: perspective(1000px) rotateY(0deg);
+          }
+          100% {
+            transform: perspective(1000px) rotateY(360deg);
+          }
+        }
+
+        @keyframes slideDown {
+          0% {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 };
 
 export default Landing;
-

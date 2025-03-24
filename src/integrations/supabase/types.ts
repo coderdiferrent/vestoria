@@ -54,13 +54,70 @@ export type Database = {
           },
         ]
       }
+      asset_transactions: {
+        Row: {
+          asset_id: string
+          created_at: string | null
+          id: string
+          portfolio_id: string
+          price: number
+          quantity: number
+          total_amount: number
+          transaction_date: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string | null
+          id?: string
+          portfolio_id: string
+          price: number
+          quantity: number
+          total_amount: number
+          transaction_date?: string | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string | null
+          id?: string
+          portfolio_id?: string
+          price?: number
+          quantity?: number
+          total_amount?: number
+          transaction_date?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asset_transactions_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asset_transactions_portfolio_id_fkey"
+            columns: ["portfolio_id"]
+            isOneToOne: false
+            referencedRelation: "investment_portfolios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assets: {
         Row: {
           created_at: string
           current_price: number
           description: string | null
           id: string
+          last_price_update: string | null
           name: string
+          risk_level: string | null
+          sector: string | null
           symbol: string
           type: string
           updated_at: string
@@ -70,7 +127,10 @@ export type Database = {
           current_price?: number
           description?: string | null
           id?: string
+          last_price_update?: string | null
           name: string
+          risk_level?: string | null
+          sector?: string | null
           symbol: string
           type: string
           updated_at?: string
@@ -80,7 +140,10 @@ export type Database = {
           current_price?: number
           description?: string | null
           id?: string
+          last_price_update?: string | null
           name?: string
+          risk_level?: string | null
+          sector?: string | null
           symbol?: string
           type?: string
           updated_at?: string
