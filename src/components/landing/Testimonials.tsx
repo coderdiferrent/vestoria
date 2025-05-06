@@ -2,7 +2,7 @@
 const testimonials = [
   {
     name: "Roberto Souza",
-    text: "Comecei com cautela, investindo apenas R$ 500. Em dois meses tive um retorno de 15%. O suporte respondeu todas as minhas dúvidas rapidamente.",
+    text: "Estava cético no começo, mas após investir R$ 1.000 consegui um retorno razoável de 8% em três meses. A plataforma é simples de usar e transparente quanto às taxas.",
     image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80"
   },
   {
