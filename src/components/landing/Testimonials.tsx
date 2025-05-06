@@ -3,22 +3,22 @@ const testimonials = [
   {
     name: "Roberto Souza",
     text: "Comecei com cautela, investindo apenas R$ 500. Em dois meses tive um retorno de 15%. O suporte respondeu todas as minhas dúvidas rapidamente.",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80"
+    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80"
   },
   {
     name: "Carolina Mendes",
     text: "Confesso que entrei com pé atrás, mas a transparência da plataforma me conquistou. Já recomendei para amigos e familiares.",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80"
+    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80"
   },
   {
     name: "Marcos Oliveira",
     text: "A interface é intuitiva e os relatórios são claros. Consegui diversificar minha carteira com facilidade e o rendimento tem sido consistente.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80"
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80"
   },
   {
     name: "Juliana Costa",
     text: "Investi R$ 2.000 há 3 meses e acompanho diariamente o crescimento. O que mais gosto é a facilidade para sacar quando precisei.",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80"
+    image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80"
   }
 ];
 
