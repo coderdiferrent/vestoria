@@ -9,7 +9,7 @@ import {
   CarouselNext,
 } from "@/components/ui/carousel";
 import { useInvestmentData } from "@/hooks/use-investment-data";
-import type { EmblaCarouselType } from "embla-carousel-react";
+import type { UseEmblaCarouselType } from "embla-carousel-react";
 
 const investidoresDestaque = [
   { nome: "Maria Luzinara", valor: 10000, tag: "INVESTIDOR" },
@@ -26,7 +26,7 @@ const investidoresDestaque = [
 
 const TopInvestorsCarousel = () => {
   const { data: investmentData } = useInvestmentData();
-  const api = useRef<EmblaCarouselType | null>(null);
+  const api = useRef<UseEmblaCarouselType[1] | null>(null);
 
   // Auto-play effect that advances the carousel every 1 second
   useEffect(() => {
@@ -41,7 +41,7 @@ const TopInvestorsCarousel = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const setApi = (newApi: EmblaCarouselType) => {
+  const setApi = (newApi: UseEmblaCarouselType[1]) => {
     api.current = newApi;
   };
 
