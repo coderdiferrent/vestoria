@@ -1,8 +1,10 @@
+
 import AppHeader from "@/components/home/AppHeader";
 import PerformanceChart from "@/components/home/PerformanceChart";
 import QuickActions from "@/components/home/QuickActions";
 import SupportSection from "@/components/home/SupportSection";
 import TransactionHistory from "@/components/home/TransactionHistory";
+import TopInvestorsCarousel from "@/components/home/TopInvestorsCarousel";
 
 const Home = () => {
   return (
@@ -29,6 +31,11 @@ const Home = () => {
           {/* Performance Chart Section */}
           <section>
             <PerformanceChart />
+          </section>
+
+          {/* Top Investors Carousel */}
+          <section className="mt-8">
+            <TopInvestorsCarousel />
           </section>
 
           {/* Transaction History */}
