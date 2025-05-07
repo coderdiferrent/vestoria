@@ -49,11 +49,11 @@ const RecentTransactions = () => {
   const [activeTab, setActiveTab] = useState("deposits");
 
   return (
-    <section className="py-20 bg-white section-transition">
+    <section className="py-20 bg-[#1A1F2C] section-transition">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold mb-4">Últimos Depósitos e Saques</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold mb-4 text-white">Últimos Depósitos e Saques</h2>
+          <p className="text-gray-400 max-w-2xl mx-auto">
             Sem taxas ocultas. Veja as últimas movimentações.
           </p>
         </div>
@@ -64,18 +64,30 @@ const RecentTransactions = () => {
           value={activeTab}
           onValueChange={setActiveTab}
         >
-          <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="deposits" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-2 mb-8 bg-[#222] border border-green-400/20">
+            <TabsTrigger 
+              value="deposits" 
+              className={cn(
+                "flex items-center gap-2 data-[state=active]:bg-[#333] data-[state=active]:text-green-400",
+                activeTab === "deposits" ? "text-green-400" : "text-gray-400"
+              )}
+            >
               <ArrowUpCircle className={cn(
                 "w-4 h-4", 
-                activeTab === "deposits" ? "text-blue-500" : "text-gray-500"
+                activeTab === "deposits" ? "text-green-400" : "text-gray-400"
               )} />
               Últimos Depósitos
             </TabsTrigger>
-            <TabsTrigger value="withdrawals" className="flex items-center gap-2">
+            <TabsTrigger 
+              value="withdrawals" 
+              className={cn(
+                "flex items-center gap-2 data-[state=active]:bg-[#333] data-[state=active]:text-green-400",
+                activeTab === "withdrawals" ? "text-green-400" : "text-gray-400"
+              )}
+            >
               <ArrowDownCircle className={cn(
                 "w-4 h-4", 
-                activeTab === "withdrawals" ? "text-green-500" : "text-gray-500"
+                activeTab === "withdrawals" ? "text-green-400" : "text-gray-400"
               )} />
               Últimos Saques
             </TabsTrigger>
@@ -93,13 +105,13 @@ const RecentTransactions = () => {
               <CarouselContent className="-ml-2 md:-ml-4">
                 {transactions.deposits.map((transaction, index) => (
                   <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                    <Card className="p-4 hover:shadow-md transition-all duration-300 h-full">
+                    <Card className="p-4 hover:shadow-md transition-all duration-300 h-full bg-[#222] border-green-400/10 hover:bg-[#2A2A2A]">
                       <div className="flex justify-between items-center">
                         <div>
-                          <p className="font-semibold">{transaction.name}</p>
-                          <p className="text-sm text-gray-500">{transaction.date}</p>
+                          <p className="font-semibold text-white">{transaction.name}</p>
+                          <p className="text-sm text-gray-400">{transaction.date}</p>
                         </div>
-                        <p className="text-blue-500 font-bold">
+                        <p className="text-green-400 font-bold">
                           + R$ {transaction.amount.toLocaleString('pt-BR')}
                         </p>
                       </div>
@@ -108,8 +120,8 @@ const RecentTransactions = () => {
                 ))}
               </CarouselContent>
               <div className="flex justify-center mt-6">
-                <CarouselPrevious className="relative static translate-y-0 left-0 mr-2" />
-                <CarouselNext className="relative static translate-y-0 right-0" />
+                <CarouselPrevious className="relative static translate-y-0 left-0 mr-2 bg-[#333] border-green-400/20 text-green-400 hover:bg-[#444] hover:text-green-300" />
+                <CarouselNext className="relative static translate-y-0 right-0 bg-[#333] border-green-400/20 text-green-400 hover:bg-[#444] hover:text-green-300" />
               </div>
             </Carousel>
           </TabsContent>
@@ -126,13 +138,13 @@ const RecentTransactions = () => {
               <CarouselContent className="-ml-2 md:-ml-4">
                 {transactions.withdrawals.map((transaction, index) => (
                   <CarouselItem key={index} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                    <Card className="p-4 hover:shadow-md transition-all duration-300 h-full">
+                    <Card className="p-4 hover:shadow-md transition-all duration-300 h-full bg-[#222] border-green-400/10 hover:bg-[#2A2A2A]">
                       <div className="flex justify-between items-center">
                         <div>
-                          <p className="font-semibold">{transaction.name}</p>
-                          <p className="text-sm text-gray-500">{transaction.date}</p>
+                          <p className="font-semibold text-white">{transaction.name}</p>
+                          <p className="text-sm text-gray-400">{transaction.date}</p>
                         </div>
-                        <p className="text-green-500 font-bold">
+                        <p className="text-red-400 font-bold">
                           - R$ {transaction.amount.toLocaleString('pt-BR')}
                         </p>
                       </div>
@@ -141,8 +153,8 @@ const RecentTransactions = () => {
                 ))}
               </CarouselContent>
               <div className="flex justify-center mt-6">
-                <CarouselPrevious className="relative static translate-y-0 left-0 mr-2" />
-                <CarouselNext className="relative static translate-y-0 right-0" />
+                <CarouselPrevious className="relative static translate-y-0 left-0 mr-2 bg-[#333] border-green-400/20 text-green-400 hover:bg-[#444] hover:text-green-300" />
+                <CarouselNext className="relative static translate-y-0 right-0 bg-[#333] border-green-400/20 text-green-400 hover:bg-[#444] hover:text-green-300" />
               </div>
             </Carousel>
           </TabsContent>
