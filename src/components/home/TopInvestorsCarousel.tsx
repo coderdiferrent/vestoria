@@ -48,7 +48,7 @@ const TopInvestorsCarousel = () => {
   return (
     <div className="bg-[#1A1F2C] rounded-2xl p-6 shadow-lg">
       <div className="text-center mb-6">
-        <span className="text-yellow-500 font-semibold mb-2 inline-block">INVESTIDOR</span>
+        <span className="text-[#6d6dff] font-semibold mb-2 inline-block">INVESTIDOR</span>
         <h2 className="text-2xl font-bold mb-3 text-white">Maiores Investidores</h2>
         <p className="text-gray-300 max-w-2xl mx-auto">
           Conheça nossos principais investidores e seus resultados extraordinários
@@ -68,9 +68,9 @@ const TopInvestorsCarousel = () => {
             <CarouselItem key={index} className="pl-4 md:basis-1/4 lg:basis-1/5">
               <Card className="bg-[#222222] border-gray-700 shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300">
                 <div className="relative">
-                  <div className="bg-[#FF5733] w-12 h-12 transform rotate-45 absolute -left-6 -top-6"></div>
+                  <div className="bg-[#6d6dff] w-12 h-12 transform rotate-45 absolute -left-6 -top-6"></div>
                   <div className="p-6">
-                    <span className="text-sm font-semibold text-yellow-500 mb-2 block">
+                    <span className="text-sm font-semibold text-[#6d6dff] mb-2 block">
                       {investidor.tag}
                     </span>
                     <h3 className="text-xl font-bold mb-3 text-white">{investidor.nome}</h3>
