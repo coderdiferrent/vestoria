@@ -3,10 +3,10 @@ import { useEffect, useRef } from "react";
 import Header from "@/components/landing/Header";
 import Hero from "@/components/landing/Hero";
 import HowItWorks from "@/components/landing/HowItWorks";
+import TopInvestors from "@/components/landing/TopInvestors";
 import Benefits from "@/components/landing/Benefits";
 import RecentTransactions from "@/components/landing/RecentTransactions";
 import Testimonials from "@/components/landing/Testimonials";
-import TopInvestors from "@/components/landing/TopInvestors";
 import Footer from "@/components/landing/Footer";
 import AnimationStyles from "@/components/landing/AnimationStyles";
 
@@ -33,12 +33,12 @@ const Landing = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <Header />
       <Hero />
       <HowItWorks />
-      <Benefits />
       <TopInvestors />
+      <Benefits />
       <RecentTransactions />
       <Testimonials />
       <Footer />
