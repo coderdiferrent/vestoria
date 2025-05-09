@@ -1,3 +1,4 @@
+
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,7 +29,7 @@ const AppHeader = () => {
   };
 
   const menuItems = [
-    { path: "/home", label: "Dashboard", icon: Home },
+    { path: "/home", label: "Homepage", icon: Home },
     { path: "/investments", label: "Investimentos", icon: LineChart },
     { path: "/withdraw", label: "Saque", icon: Wallet2 },
     { path: "/referral", label: "Indicação", icon: Users },
@@ -100,7 +101,7 @@ const AppHeader = () => {
     <header className="bg-white shadow-sm">
       <div className="container mx-auto px-4">
         <nav className="flex flex-col md:flex-row items-center justify-between py-4 space-y-4 md:space-y-0">
-          <Link to="/home" className="text-2xl font-bold text-primary">
+          <Link to="/home" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Vestoria
           </Link>
 
