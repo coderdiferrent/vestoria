@@ -1,4 +1,3 @@
-
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,7 +28,7 @@ const AppHeader = () => {
   };
 
   const menuItems = [
-    { path: "/home", label: "Homepage", icon: Home },
+    { path: "/home", label: "Página Inicial", icon: Home },
     { path: "/investments", label: "Investimentos", icon: LineChart },
     { path: "/withdraw", label: "Saque", icon: Wallet2 },
     { path: "/referral", label: "Indicação", icon: Users },

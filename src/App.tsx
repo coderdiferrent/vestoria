@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Homepage from "./pages/Home";
+import Home from "./pages/Home";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 import Investment from "./pages/Investment";
@@ -39,7 +39,7 @@ const App = () => {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/home" element={<Homepage />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/investments" element={<Investment />} />
             <Route path="/withdraw" element={<Withdraw />} />
             <Route path="/referral" element={<Referral />} />

@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useInvestmentData } from "@/hooks/use-investment-data";
 
-const Homepage = () => {
+const Home = () => {
   const { data: investmentData } = useInvestmentData();
 
   return (
@@ -21,7 +21,7 @@ const Homepage = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8 animate-fade-in">
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Homepage
+                Página Inicial
               </h1>
               <p className="text-gray-600 mt-1">
                 Bem-vindo à sua central de investimentos
@@ -147,4 +147,4 @@ const Homepage = () => {
   );
 };
 
-export default Homepage;
+export default Home;
