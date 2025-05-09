@@ -6,6 +6,7 @@ import HowItWorks from "@/components/landing/HowItWorks";
 import Benefits from "@/components/landing/Benefits";
 import RecentTransactions from "@/components/landing/RecentTransactions";
 import Testimonials from "@/components/landing/Testimonials";
+import TopInvestors from "@/components/landing/TopInvestors";
 import Footer from "@/components/landing/Footer";
 import AnimationStyles from "@/components/landing/AnimationStyles";
 
@@ -37,6 +38,7 @@ const Landing = () => {
       <Hero />
       <HowItWorks />
       <Benefits />
+      <TopInvestors />
       <RecentTransactions />
       <Testimonials />
       <Footer />
