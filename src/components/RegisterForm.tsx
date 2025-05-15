@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -302,7 +303,7 @@ const RegisterForm = () => {
 
       <div className="text-center">
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/login")}
           className="text-sm text-primary hover:text-secondary"
         >
           Já tem uma conta? Faça login
