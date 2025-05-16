@@ -6,7 +6,11 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { supabase } from "@/integrations/supabase/client";
 
-const RegisterForm = () => {
+interface RegisterFormProps {
+  referralCode?: string | null;
+}
+
+const RegisterForm = ({ referralCode }: RegisterFormProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
@@ -20,6 +24,7 @@ const RegisterForm = () => {
     birthDate: "",
     gender: "",
     verificationCode: "",
+    referredBy: referralCode || "",
   });
 
   const [passwordRequirements, setPasswordRequirements] = useState({
@@ -238,6 +243,7 @@ const RegisterForm = () => {
               cpf: formData.cpf.replace(/\D/g, ''), // Remove formatting before saving
               birth_date: formData.birthDate,
               gender: formData.gender,
+              referred_by: formData.referredBy, // Add the referral code
             }
           }
         });
@@ -266,6 +272,11 @@ const RegisterForm = () => {
         <p className="mt-2 text-sm text-gray-600">
           {step === 1 ? "Preencha seus dados" : "Verifique seu email"}
         </p>
+        {referralCode && (
+          <div className="mt-2 p-2 bg-green-50 text-green-700 rounded-md text-sm">
+            Você foi convidado com o código: <strong>{referralCode}</strong>
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-6">
@@ -430,6 +441,27 @@ const RegisterForm = () => {
                 <option value="prefer_not_to_say">Prefiro não informar</option>
               </select>
             </div>
+
+            {/* Show referral code field if not coming from a referral link */}
+            {!referralCode && (
+              <div>
+                <label htmlFor="referredBy" className="block text-sm font-medium text-gray-700">
+                  Código de Indicação (opcional)
+                </label>
+                <input
+                  id="referredBy"
+                  name="referredBy"
+                  type="text"
+                  value={formData.referredBy}
+                  onChange={handleChange}
+                  className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
+                  placeholder="Insira o código de indicação"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Se alguém te indicou, coloque o código aqui
+                </p>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-4">

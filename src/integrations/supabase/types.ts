@@ -258,6 +258,7 @@ export type Database = {
           last_name: string | null
           phone: string | null
           postal_code: string | null
+          referral_code: string | null
           risk_profile: string | null
           state: string | null
           updated_at: string
@@ -276,6 +277,7 @@ export type Database = {
           last_name?: string | null
           phone?: string | null
           postal_code?: string | null
+          referral_code?: string | null
           risk_profile?: string | null
           state?: string | null
           updated_at?: string
@@ -294,9 +296,73 @@ export type Database = {
           last_name?: string | null
           phone?: string | null
           postal_code?: string | null
+          referral_code?: string | null
           risk_profile?: string | null
           state?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      referral_commissions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          referral_id: string
+          transaction_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          referral_id: string
+          transaction_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          referral_id?: string
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_commissions_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referrals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_commissions_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_id?: string
+          referrer_id?: string
         }
         Relationships: []
       }
