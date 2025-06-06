@@ -5,10 +5,13 @@ import { useToast } from "@/hooks/use-toast";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { supabase } from "@/integrations/supabase/client";
+import { sanitizeInput, sanitizeEmail, sanitizeCPF, sanitizePhone, RateLimiter } from "@/utils/security";
 
 interface RegisterFormProps {
   referralCode?: string | null;
 }
+
+const registerLimiter = new RateLimiter(3, 30 * 60 * 1000); // 3 attempts per 30 minutes
 
 const RegisterForm = ({ referralCode }: RegisterFormProps) => {
   const navigate = useNavigate();
@@ -30,7 +33,8 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
   const [passwordRequirements, setPasswordRequirements] = useState({
     length: false,
     hasNumber: false,
-    hasUpperCase: false
+    hasUpperCase: false,
+    hasSpecialChar: false
   });
 
   const [step, setStep] = useState(1);
@@ -38,25 +42,45 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
+    // Sanitize input based on field type
+    let sanitizedValue = value;
+    switch (name) {
+      case 'firstName':
+      case 'lastName':
+        sanitizedValue = sanitizeInput(value).replace(/[0-9]/g, ''); // Remove numbers from names
+        break;
+      case 'email':
+        sanitizedValue = value.toLowerCase().trim();
+        break;
+      case 'password':
+      case 'confirmPassword':
+        sanitizedValue = value; // Don't sanitize passwords to preserve special characters
+        break;
+      default:
+        sanitizedValue = sanitizeInput(value);
+    }
+    
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: sanitizedValue
     }));
 
     // Update password requirements validation
     if (name === "password") {
       setPasswordRequirements({
-        length: value.length >= 6,
+        length: value.length >= 8,
         hasNumber: /\d/.test(value),
-        hasUpperCase: /[A-Z]/.test(value)
+        hasUpperCase: /[A-Z]/.test(value),
+        hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(value)
       });
     }
   };
 
   const handlePhoneChange = (value: string) => {
+    const sanitizedPhone = sanitizePhone(value);
     setFormData(prev => ({
       ...prev,
-      phone: value
+      phone: sanitizedPhone
     }));
   };
 
@@ -66,45 +90,38 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
   };
 
   const validateCPF = (cpf: string): boolean => {
-    // Remove non-numeric characters
     const cleanCPF = cpf.replace(/\D/g, '');
     return cleanCPF.length === 11;
   };
 
   const validatePhone = (phone: string): boolean => {
-    // Brazilian phone format with country code should be 12-13 digits
-    // +55 (area code) (phone number)
-    return phone.length >= 12 && phone.length <= 13;
+    return phone.length >= 12 && phone.length <= 15;
   };
 
   const validatePassword = (password: string): boolean => {
-    // At least 6 characters, 1 number, 1 uppercase letter
-    return password.length >= 6 && 
+    return password.length >= 8 && 
            /\d/.test(password) && 
-           /[A-Z]/.test(password);
+           /[A-Z]/.test(password) &&
+           /[!@#$%^&*(),.?":{}|<>]/.test(password);
   };
 
   const validateAge = (birthDate: string): boolean => {
     const today = new Date();
     const birth = new Date(birthDate);
     
-    // Calculate age
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
     
-    // Adjust age if birthday hasn't occurred yet this year
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
       age--;
     }
     
-    return age >= 12;
+    return age >= 18; // Increased minimum age for security
   };
 
   const formatCPF = (cpf: string): string => {
-    // Remove non-numeric characters
     const cleanCPF = cpf.replace(/\D/g, '');
     
-    // Format as xxx.xxx.xxx-xx
     if (cleanCPF.length <= 3) {
       return cleanCPF;
     } else if (cleanCPF.length <= 6) {
@@ -117,7 +134,8 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
   };
 
   const handleCPFChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedCPF = formatCPF(e.target.value);
+    const sanitized = sanitizeCPF(e.target.value);
+    const formattedCPF = formatCPF(sanitized);
     setFormData(prev => ({
       ...prev,
       cpf: formattedCPF
@@ -126,9 +144,33 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (step === 1) {
-      // Validate all fields before moving to the next step
-      if (!formData.firstName || !formData.lastName) {
+      // Enhanced validation for step 1
+      const sanitizedData = {
+        firstName: sanitizeInput(formData.firstName),
+        lastName: sanitizeInput(formData.lastName),
+        email: sanitizeEmail(formData.email),
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+        cpf: sanitizeCPF(formData.cpf),
+        phone: sanitizePhone(formData.phone),
+        birthDate: formData.birthDate,
+        gender: formData.gender
+      };
+
+      // Rate limiting check
+      if (!registerLimiter.isAllowed(sanitizedData.email)) {
+        toast({
+          title: "Muitas tentativas",
+          description: "Aguarde 30 minutos antes de tentar novamente",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate all fields
+      if (!sanitizedData.firstName || !sanitizedData.lastName) {
         toast({
           title: "Erro",
           description: "Por favor, preencha seu nome e sobrenome",
@@ -137,18 +179,16 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
         return;
       }
 
-      // Validate phone
-      if (!validatePhone(formData.phone)) {
+      if (!validatePhone(sanitizedData.phone)) {
         toast({
           title: "Erro",
-          description: "Por favor, insira um número de telefone válido no formato brasileiro",
+          description: "Por favor, insira um número de telefone válido",
           variant: "destructive",
         });
         return;
       }
 
-      // Validate email
-      if (!validateEmail(formData.email)) {
+      if (!validateEmail(sanitizedData.email)) {
         toast({
           title: "Erro",
           description: "Por favor, insira um email válido",
@@ -157,17 +197,16 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
         return;
       }
 
-      // Validate password
-      if (!validatePassword(formData.password)) {
+      if (!validatePassword(sanitizedData.password)) {
         toast({
           title: "Erro",
-          description: "A senha deve ter pelo menos 6 caracteres, incluir uma letra maiúscula e um número",
+          description: "A senha deve ter pelo menos 8 caracteres, incluir uma letra maiúscula, um número e um caractere especial",
           variant: "destructive",
         });
         return;
       }
 
-      if (formData.password !== formData.confirmPassword) {
+      if (sanitizedData.password !== sanitizedData.confirmPassword) {
         toast({
           title: "Erro",
           description: "As senhas não coincidem",
@@ -176,8 +215,7 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
         return;
       }
 
-      // Validate CPF
-      if (!validateCPF(formData.cpf)) {
+      if (!validateCPF(sanitizedData.cpf)) {
         toast({
           title: "Erro",
           description: "Por favor, insira um CPF válido com 11 dígitos",
@@ -186,8 +224,7 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
         return;
       }
 
-      // Validate birth date
-      if (!formData.birthDate) {
+      if (!sanitizedData.birthDate) {
         toast({
           title: "Erro",
           description: "Por favor, insira sua data de nascimento",
@@ -196,17 +233,16 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
         return;
       }
 
-      if (!validateAge(formData.birthDate)) {
+      if (!validateAge(sanitizedData.birthDate)) {
         toast({
           title: "Erro",
-          description: "Você precisa ter pelo menos 12 anos para criar uma conta",
+          description: "Você precisa ter pelo menos 18 anos para criar uma conta",
           variant: "destructive",
         });
         return;
       }
 
-      // Validate gender
-      if (!formData.gender) {
+      if (!sanitizedData.gender) {
         toast({
           title: "Erro",
           description: "Por favor, selecione seu sexo",
@@ -214,6 +250,16 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
         });
         return;
       }
+
+      // Update form data with sanitized values
+      setFormData(prev => ({
+        ...prev,
+        firstName: sanitizedData.firstName,
+        lastName: sanitizedData.lastName,
+        email: sanitizedData.email,
+        cpf: sanitizedData.cpf,
+        phone: sanitizedData.phone
+      }));
 
       setStep(2);
       toast({
@@ -240,10 +286,10 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
               first_name: formData.firstName,
               last_name: formData.lastName,
               phone: formData.phone,
-              cpf: formData.cpf.replace(/\D/g, ''), // Remove formatting before saving
+              cpf: formData.cpf.replace(/\D/g, ''),
               birth_date: formData.birthDate,
               gender: formData.gender,
-              referred_by: formData.referredBy, // Add the referral code
+              referred_by: sanitizeInput(formData.referredBy),
             }
           }
         });
@@ -256,9 +302,10 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
         });
         navigate("/");
       } catch (error: any) {
+        console.error('Registration error:', error);
         toast({
           title: "Erro",
-          description: error.message,
+          description: "Erro ao criar conta. Tente novamente.",
           variant: "destructive",
         });
       }
@@ -294,6 +341,7 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
                   required
                   value={formData.firstName}
                   onChange={handleChange}
+                  maxLength={50}
                   className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
                 />
               </div>
@@ -308,6 +356,7 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
                   required
                   value={formData.lastName}
                   onChange={handleChange}
+                  maxLength={50}
                   className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
                 />
               </div>
@@ -340,6 +389,7 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
                 required
                 value={formData.email}
                 onChange={handleChange}
+                maxLength={254}
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
               />
             </div>
@@ -355,19 +405,23 @@ const RegisterForm = ({ referralCode }: RegisterFormProps) => {
                 required
                 value={formData.password}
                 onChange={handleChange}
+                maxLength={128}
                 className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
               />
               <div className="mt-1 text-xs text-gray-500">
                 <p>A senha deve conter:</p>
                 <ul className="list-disc pl-5">
                   <li className={passwordRequirements.length ? "text-green-500" : ""}>
-                    Pelo menos 6 caracteres
+                    Pelo menos 8 caracteres
                   </li>
                   <li className={passwordRequirements.hasNumber ? "text-green-500" : ""}>
                     Pelo menos 1 número
                   </li>
                   <li className={passwordRequirements.hasUpperCase ? "text-green-500" : ""}>
                     Pelo menos 1 letra maiúscula
+                  </li>
+                  <li className={passwordRequirements.hasSpecialChar ? "text-green-500" : ""}>
+                    Pelo menos 1 caractere especial
                   </li>
                 </ul>
               </div>

@@ -1,7 +1,9 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { sanitizeEmail, sanitizeInput, RateLimiter } from "@/utils/security";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
+const loginLimiter = new RateLimiter(5, 15 * 60 * 1000); // 5 attempts per 15 minutes
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -26,7 +30,11 @@ const LoginForm = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    if (!email.includes("@")) {
+    // Sanitize inputs
+    const sanitizedEmail = sanitizeEmail(email);
+    const sanitizedPassword = sanitizeInput(password);
+    
+    if (!sanitizedEmail) {
       toast({
         title: "Erro",
         description: "Por favor, insira um email válido",
@@ -36,7 +44,7 @@ const LoginForm = () => {
       return;
     }
 
-    if (password.length < 6) {
+    if (sanitizedPassword.length < 6) {
       toast({
         title: "Erro",
         description: "A senha deve ter pelo menos 6 caracteres",
@@ -46,10 +54,21 @@ const LoginForm = () => {
       return;
     }
 
+    // Rate limiting check
+    if (!loginLimiter.isAllowed(sanitizedEmail)) {
+      toast({
+        title: "Muitas tentativas",
+        description: "Aguarde 15 minutos antes de tentar novamente",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: sanitizedEmail,
+        password: sanitizedPassword,
       });
 
       if (error) {
@@ -75,6 +94,7 @@ const LoginForm = () => {
       });
       navigate("/home");
     } catch (error: any) {
+      console.error('Login error:', error);
       toast({
         title: "Erro",
         description: "Ocorreu um erro ao fazer login. Tente novamente.",
@@ -89,8 +109,20 @@ const LoginForm = () => {
     e.preventDefault();
     setIsResetting(true);
 
+    const sanitizedEmail = sanitizeEmail(resetEmail);
+    
+    if (!sanitizedEmail) {
+      toast({
+        title: "Erro",
+        description: "Por favor, insira um email válido",
+        variant: "destructive",
+      });
+      setIsResetting(false);
+      return;
+    }
+
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+      const { error } = await supabase.auth.resetPasswordForEmail(sanitizedEmail, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
 
@@ -102,9 +134,10 @@ const LoginForm = () => {
       });
       setResetEmailOpen(false);
     } catch (error: any) {
+      console.error('Password reset error:', error);
       toast({
         title: "Erro",
-        description: error.message,
+        description: "Erro ao enviar email de recuperação",
         variant: "destructive",
       });
     } finally {
@@ -143,6 +176,7 @@ const LoginForm = () => {
               className="mt-1"
               placeholder="Seu email"
               disabled={isLoading}
+              maxLength={254}
             />
           </div>
           
@@ -160,6 +194,7 @@ const LoginForm = () => {
               className="mt-1"
               placeholder="Sua senha"
               disabled={isLoading}
+              maxLength={128}
             />
           </div>
         </div>
