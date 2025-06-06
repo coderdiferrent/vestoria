@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import AppHeader from "@/components/home/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -53,18 +52,22 @@ const Referral = () => {
         // Fetch referral statistics
         const { data: referralsData } = await supabase
           .from('referrals')
-          .select('referred_id')
+          .select('id, referred_id')
           .eq('referrer_id', user.id);
           
         const totalReferrals = referralsData?.length || 0;
 
-        // Fetch earnings from commissions
-        const { data: commissionsData } = await supabase
-          .from('referral_commissions')
-          .select('amount')
-          .eq('referral_id', referralsData?.map(r => r.id));
+        // Fetch earnings from commissions if there are referrals
+        let totalEarnings = 0;
+        if (referralsData && referralsData.length > 0) {
+          const referralIds = referralsData.map(r => r.id);
+          const { data: commissionsData } = await supabase
+            .from('referral_commissions')
+            .select('amount')
+            .in('referral_id', referralIds);
 
-        const totalEarnings = commissionsData?.reduce((sum, item) => sum + Number(item.amount), 0) || 0;
+          totalEarnings = commissionsData?.reduce((sum, item) => sum + Number(item.amount), 0) || 0;
+        }
 
         setReferralStats({
           totalReferrals,

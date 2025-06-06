@@ -7,6 +7,7 @@ import TopInvestors from "@/components/landing/TopInvestors";
 import Benefits from "@/components/landing/Benefits";
 import RecentTransactions from "@/components/landing/RecentTransactions";
 import Testimonials from "@/components/landing/Testimonials";
+import UserReviewForm from "@/components/landing/UserReviewForm";
 import Footer from "@/components/landing/Footer";
 import AnimationStyles from "@/components/landing/AnimationStyles";
 
@@ -41,6 +42,7 @@ const Landing = () => {
       <Benefits />
       <RecentTransactions />
       <Testimonials />
+      <UserReviewForm />
       <Footer />
       <AnimationStyles />
     </div>
